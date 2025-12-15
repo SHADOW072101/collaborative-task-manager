@@ -1,4 +1,4 @@
-import { ButtonHTMLAttributes, ReactNode } from 'react';
+import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 
 const buttonVariants = cva(
@@ -11,6 +11,8 @@ const buttonVariants = cva(
         danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
         outline: 'border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-400',
         ghost: 'text-gray-600 hover:bg-gray-100 focus:ring-gray-400',
+        glass: 'bg-white/20 backdrop-blur-sm border border-white/30 text-white hover:bg-white/30 hover:border-white/40 shadow-lg shadow-blue-500/10',
+        'glass-primary': 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-sm border border-blue-300/30 text-blue-700 hover:from-blue-500/30 hover:to-purple-500/30',
       },
       size: {
         sm: 'px-3 py-1.5 text-sm',
@@ -62,3 +64,5 @@ export const Button = ({
     </button>
   );
 };
+
+// Add to your buttonVariants in Button.tsx:

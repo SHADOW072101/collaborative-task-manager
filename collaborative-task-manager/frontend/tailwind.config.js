@@ -1,23 +1,47 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
+      // Add custom colors for glass theme
       colors: {
-        primary: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
+        glass: {
+          white: {
+            10: 'rgba(255, 255, 255, 0.1)',
+            20: 'rgba(255, 255, 255, 0.2)',
+            30: 'rgba(255, 255, 255, 0.3)',
+            40: 'rgba(255, 255, 255, 0.4)',
+            50: 'rgba(255, 255, 255, 0.5)',
+            60: 'rgba(255, 255, 255, 0.6)',
+            70: 'rgba(255, 255, 255, 0.7)',
+          }
+        }
+      },
+      // Add backdrop blur utilities
+      backdropBlur: {
+        xs: '2px',
+      },
+      // Add animations
+      animation: {
+        blob: "blob 7s infinite",
+      },
+      keyframes: {
+        blob: {
+          "0%": {
+            transform: "translate(0px, 0px) scale(1)",
+          },
+          "33%": {
+            transform: "translate(30px, -50px) scale(1.1)",
+          },
+          "66%": {
+            transform: "translate(-20px, 20px) scale(0.9)",
+          },
+          "100%": {
+            transform: "translate(0px, 0px) scale(1)",
+          },
         },
       },
     },
