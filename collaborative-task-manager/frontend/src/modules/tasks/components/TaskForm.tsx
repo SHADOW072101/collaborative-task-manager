@@ -12,7 +12,7 @@ const taskSchema = z.object({
   description: z.string().optional(),
   dueDate: z.string().min(1, 'Due date is required'),
   priority: z.enum(['Low', 'Medium', 'High', 'Urgent']),
-  status: z.enum(['To Do', 'In Progress', 'Review', 'Completed']),
+  status: z.enum(['ToDo', 'InProgress', 'Review', 'Completed']),
   assignedToId: z.string().optional(),
 });
 
@@ -32,13 +32,16 @@ export const TaskForm = ({ onSubmit, loading = false, users, initialData }: Task
     formState: { errors },
   } = useForm<TaskFormData>({
     resolver: zodResolver(taskSchema),
-    defaultValues: initialData,
+    dueDate: new Date().toISOString().slice(0, 16), // Format for datetime-local
+      priority: 'Medium',
+      status: 'ToDo',
+      ...initialData,
   });
 
-  const userOptions = users.map(user => ({
-    value: user.id,
-    label: user.name,
-  }));
+  const userOptions = users?.map(user => ({
+  value: user.id,
+  label: user.name,
+})) || [];
 
   const priorityOptions = [
     { value: 'Low', label: 'Low' },
@@ -48,8 +51,8 @@ export const TaskForm = ({ onSubmit, loading = false, users, initialData }: Task
   ];
 
   const statusOptions = [
-    { value: 'To Do', label: 'To Do' },
-    { value: 'In Progress', label: 'In Progress' },
+    { value: 'ToDo', label: 'ToDo' },
+    { value: 'InProgress', label: 'InProgress' },
     { value: 'Review', label: 'Review' },
     { value: 'Completed', label: 'Completed' },
   ];

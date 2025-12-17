@@ -1,5 +1,5 @@
 import { apiClient } from '../../../shared/services/apiClient';
-import { User } from '../types';
+import {type User} from '../types';
 
 export const userService = {
   async getUsers(): Promise<User[]> {

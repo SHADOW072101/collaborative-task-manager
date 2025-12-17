@@ -1,4 +1,5 @@
-const apiUrl = import.meta.env.VITE_API_URL;
+import { apiClient } from './config/api'; // Add this import
+
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -16,6 +17,22 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
       retry: 1,
+      queryFn: async ({ queryKey }) => {
+        // Use the apiClient from config
+        const response = await apiClient.get(queryKey[0] as string);
+        return response.data;
+      },
+    },
+    mutations: {
+      mutationFn: async ({ endpoint, method = 'POST', data }: any) => {
+        // Use the apiClient for mutations
+        const response = await apiClient({
+          url: endpoint,
+          method,
+          data,
+        });
+        return response.data;
+      },
     },
   },
 });

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../auth/hooks/useAuth';
+import { useUsers } from '../../users/hooks/useUsers';
 import { Button } from '../../../shared/components/Button';
 import { TaskFilters } from '../components/TaskFilters';
 import { TaskCard } from '../components/TaskCard';
@@ -7,9 +8,10 @@ import { TaskListSkeleton } from '../components/TaskListSkeleton';
 import { Modal } from '../../../shared/components/Modal';
 import { TaskForm } from '../components/TaskForm';
 import { useTasks } from '../hooks/useTasks';
-import { useTaskMutations } from '../hooks/useTaskMutations';;
+import { useTaskMutations } from '../hooks/useTaskMutations';
 import type { Task } from '../types';
 import { Plus } from 'lucide-react';
+import { format } from 'date-fns';
 
 interface TasksPageProps {
   view?: 'all' | 'my' | 'assigned';
@@ -17,8 +19,10 @@ interface TasksPageProps {
 
 export const TasksPage = ({ view = 'my' }: TasksPageProps) => {
   const { user } = useAuth();
+  const { users, loading: usersLoading } = useUsers(); // Fetch users
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [error, setError] = useState<string | null>(null);
   
   // State for filters
   const [search, setSearch] = useState('');
@@ -27,7 +31,7 @@ export const TasksPage = ({ view = 'my' }: TasksPageProps) => {
   const [sortBy, setSortBy] = useState('dueDate-asc');
 
   // Fetch tasks based on view
-  const { tasks, loading, refetch } = useTasks({
+  const { tasks, loading: tasksLoading, refetch } = useTasks({
     view,
     search,
     status: statusFilter || undefined,
@@ -35,30 +39,50 @@ export const TasksPage = ({ view = 'my' }: TasksPageProps) => {
     sortBy,
   });
 
-  const { createTask, updateTask, deleteTask } = useTaskMutations();
+  const { createTask, updateTask, deleteTask, isLoading: mutationsLoading } = useTaskMutations();
 
   const handleCreateTask = async (data: any) => {
-    await createTask(data);
-    setShowCreateModal(false);
-    refetch();
+    try {
+      setError(null);
+      await createTask(data);
+      setShowCreateModal(false);
+      refetch();
+    } catch (err: any) {
+      setError(err.message || 'Failed to create task');
+    }
   };
 
   const handleUpdateTask = async (taskId: string, data: any) => {
-    await updateTask(taskId, data);
-    setEditingTask(null);
-    refetch();
+    try {
+      setError(null);
+      await updateTask(taskId, data);
+      setEditingTask(null);
+      refetch();
+    } catch (err: any) {
+      setError(err.message || 'Failed to update task');
+    }
   };
 
   const handleDeleteTask = async (taskId: string) => {
     if (window.confirm('Are you sure you want to delete this task?')) {
-      await deleteTask(taskId);
-      refetch();
+      try {
+        setError(null);
+        await deleteTask(taskId);
+        refetch();
+      } catch (err: any) {
+        setError(err.message || 'Failed to delete task');
+      }
     }
   };
 
   const handleStatusChange = async (taskId: string, newStatus: Task['status']) => {
-    await updateTask(taskId, { status: newStatus });
-    refetch();
+    try {
+      setError(null);
+      await updateTask(taskId, { status: newStatus });
+      refetch();
+    } catch (err: any) {
+      setError(err.message || 'Failed to update task status');
+    }
   };
 
   const handleClearFilters = () => {
@@ -68,7 +92,20 @@ export const TasksPage = ({ view = 'my' }: TasksPageProps) => {
     setSortBy('dueDate-asc');
   };
 
+  // Filter users to exclude current user from assignees
+  const availableUsers = users.filter(u => u.id !== user?.id);
+
   const pageTitle = view === 'all' ? 'All Tasks' : view === 'assigned' ? 'Assigned Tasks' : 'My Tasks';
+
+  // Format date for form (safely handle different date formats)
+  const formatDateForForm = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return format(date, 'yyyy-MM-dd');
+    } catch {
+      return '';
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -79,11 +116,36 @@ export const TasksPage = ({ view = 'my' }: TasksPageProps) => {
             {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'} found
           </p>
         </div>
-        <Button onClick={() => setShowCreateModal(true)}>
+        <Button 
+          onClick={() => setShowCreateModal(true)}
+          disabled={mutationsLoading}
+        >
           <Plus className="h-4 w-4 mr-2" />
           New Task
         </Button>
       </div>
+
+      {/* Error message */}
+      {error && (
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <span className="text-red-500">⚠️</span>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+            <div className="ml-auto pl-3">
+              <button
+                onClick={() => setError(null)}
+                className="text-red-500 hover:text-red-700"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <TaskFilters
         search={search}
@@ -97,7 +159,7 @@ export const TasksPage = ({ view = 'my' }: TasksPageProps) => {
         onClearFilters={handleClearFilters}
       />
 
-      {loading ? (
+      {tasksLoading ? (
         <TaskListSkeleton />
       ) : tasks.length === 0 ? (
         <div className="text-center py-12">
@@ -110,7 +172,10 @@ export const TasksPage = ({ view = 'my' }: TasksPageProps) => {
               ? 'Try changing your filters'
               : 'Get started by creating your first task'}
           </p>
-          <Button onClick={() => setShowCreateModal(true)}>
+          <Button 
+            onClick={() => setShowCreateModal(true)}
+            disabled={mutationsLoading}
+          >
             Create Your First Task
           </Button>
         </div>
@@ -132,36 +197,36 @@ export const TasksPage = ({ view = 'my' }: TasksPageProps) => {
       {/* Create Task Modal */}
       <Modal
         isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
+        onClose={() => !mutationsLoading && setShowCreateModal(false)}
         title="Create New Task"
         size="lg"
       >
         <TaskForm
           onSubmit={handleCreateTask}
-          loading={false}
-          users={[]} // You'll need to fetch users here
+          loading={mutationsLoading}
+          users={availableUsers}
         />
       </Modal>
 
       {/* Edit Task Modal */}
       <Modal
         isOpen={!!editingTask}
-        onClose={() => setEditingTask(null)}
+        onClose={() => !mutationsLoading && setEditingTask(null)}
         title="Edit Task"
         size="lg"
       >
         {editingTask && (
           <TaskForm
             onSubmit={(data) => handleUpdateTask(editingTask.id, data)}
-            loading={false}
-            users={[]} // You'll need to fetch users here
+            loading={mutationsLoading}
+            users={availableUsers}
             initialData={{
               title: editingTask.title,
-              description: editingTask.description,
-              dueDate: editingTask.dueDate.split('T')[0],
+              description: editingTask.description || '',
+              dueDate: formatDateForForm(editingTask.dueDate),
               priority: editingTask.priority,
               status: editingTask.status,
-              assignedToId: editingTask.assignedToId,
+              assignedToId: editingTask.assignedToId || '',
             }}
           />
         )}

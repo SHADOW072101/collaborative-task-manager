@@ -1,20 +1,38 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LoginForm } from '../components/LoginForm';
 import { useAuth } from '../hooks/useAuth';
-import { Sparkles, CheckSquare, Shield } from 'lucide-react';
+import {  CheckSquare, Shield } from 'lucide-react';
 
 export const LoginPage = () => {
   const [error, setError] = useState<string>('');
-  const { login, loading } = useAuth();
+  const { login, loading, isAuthenticated } = useAuth(); // Add isAuthenticated
   const navigate = useNavigate();
+
+  // Debug: Log auth state
+  useEffect(() => {
+    console.log('LoginPage - isAuthenticated:', isAuthenticated);
+    console.log('LoginPage - localStorage token:', localStorage.getItem('token'));
+    console.log('LoginPage - localStorage user:', localStorage.getItem('user'));
+  }, [isAuthenticated]);
 
   const handleSubmit = async (data: { email: string; password: string }) => {
     try {
       setError('');
+      console.log('Login attempt starting...'); // Debug
+      
       await login(data.email, data.password);
-      navigate('/dashboard');
+      
+      console.log('Login successful in handleSubmit'); // Debug
+      
+      // Add a small delay then force redirect
+      setTimeout(() => {
+        console.log('Redirecting to dashboard...'); // Debug
+        navigate('/dashboard', { replace: true });
+      }, 100);
+      
     } catch (err: any) {
+      console.error('LoginPage error:', err); // Debug
       setError(err.message || 'Login failed. Please check your credentials.');
     }
   };
@@ -68,34 +86,6 @@ export const LoginPage = () => {
               </Link>
             </p>
           </div>
-
-          {/* Demo credentials section */}
-          {/* <div className="mt-8 pt-8 border-t border-white/30">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Sparkles className="h-4 w-4 text-purple-500" />
-              <span className="text-sm font-medium text-gray-700">Demo Credentials</span>
-              <Sparkles className="h-4 w-4 text-purple-500" />
-            </div>
-            <div className="bg-white/30 backdrop-blur-sm border border-white/40 rounded-lg p-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <div className="font-medium text-gray-700 mb-1">Email</div>
-                  <div className="font-mono text-gray-800 bg-white/50 px-3 py-1.5 rounded-lg">
-                    demo@example.com
-                  </div>
-                </div>
-                <div>
-                  <div className="font-medium text-gray-700 mb-1">Password</div>
-                  <div className="font-mono text-gray-800 bg-white/50 px-3 py-1.5 rounded-lg">
-                    demo123
-                  </div>
-                </div>
-              </div>
-              <div className="mt-4 text-xs text-center text-gray-600">
-                Use these credentials to explore the platform
-              </div>
-            </div>
-          </div> */}
         </div>
 
         {/* Features highlight */}

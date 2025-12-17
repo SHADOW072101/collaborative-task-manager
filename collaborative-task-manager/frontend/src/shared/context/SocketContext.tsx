@@ -20,26 +20,35 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
+    // Only connect if user is logged in
     const token = localStorage.getItem('token');
-    if (!token) return;
+    if (!token) {
+      return;
+    }
 
-    const socketInstance = io(import.meta.env.VITE_API_URL || 'http://localhost:3000', {
+    // IMPORTANT: Your backend is running on port 3000
+    // Check if your backend has Socket.io correctly set up
+    const socketInstance = io('http://localhost:3000', {
       auth: { token },
       transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
     });
 
     socketInstance.on('connect', () => {
-      console.log('Socket connected');
+      console.log('✅ Socket connected:', socketInstance.id);
       setIsConnected(true);
     });
 
     socketInstance.on('disconnect', () => {
-      console.log('Socket disconnected');
+      console.log('❌ Socket disconnected');
       setIsConnected(false);
     });
 
     socketInstance.on('connect_error', (error) => {
-      console.error('Socket connection error:', error);
+      console.error('Socket connection error:', error.message);
+      setIsConnected(false);
     });
 
     setSocket(socketInstance);
@@ -47,7 +56,7 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
     return () => {
       socketInstance.disconnect();
     };
-  }, []);
+  }, []); // Only run on mount
 
   return (
     <SocketContext.Provider value={{ socket, isConnected }}>

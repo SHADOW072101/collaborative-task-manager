@@ -65,4 +65,3 @@ export const Button = ({
   );
 };
 
-// Add to your buttonVariants in Button.tsx:

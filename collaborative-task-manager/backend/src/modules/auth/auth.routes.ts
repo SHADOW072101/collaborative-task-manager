@@ -1,16 +1,19 @@
-import { Router } from 'express';
-import { login, logout, getProfile,register } from '../controllers/auth.controller';
-import { authenticate } from './auth.middleware';
+import express from 'express';
+import { authenticate } from '../auth/auth.middleware';
+import { authController } from '../controllers/auth.controller';
 
-const router = Router();
+
+const router = express.Router();
 
 // Public routes
-router.post('/register', register);
-router.post('/login', login);
+router.post('/register', authController.register);
+router.post('/login', authController.login);
 
-// Protected routes
-router.get('/me', authenticate, login);
-router.put('/profile', authenticate, getProfile);
-router.post('/logout', authenticate, logout);
+// Protected routes (require authentication)
+router.get('/me', authenticate, authController.getCurrentUser);
+router.put('/profile', authenticate, authController.updateProfile);
+router.post('/logout', authenticate, authController.logout);
+router.post('/refresh-token', authController.refreshToken); // Optional
+
 
 export default router;

@@ -1,9 +1,28 @@
 import { apiClient } from '../../../shared/services/apiClient';
+import type { TaskFormData } from '../components/TaskForm';
 import { type Task, type CreateTaskData, type UpdateTaskData } from '../types';
 
 export const taskService = {
-  async getTasks(params?: Record<string, string>): Promise<Task[]> {
-    const response = await apiClient.get<Task[]>('/tasks', { params });
+  async createTask(data: TaskFormData) {
+    console.log('🔍 taskService.createTask called with:', data);
+    
+    try {
+      const response = await apiClient.post('/tasks', data);
+      console.log('✅ Task created successfully:', response.data);
+      return response.data.data;
+    } catch (error: any) {
+      console.error('❌ Task creation failed:', {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+      });
+      throw error;
+    }
+  },
+
+
+  async getDashboardStats() {
+    const response = await apiClient.get('/tasks/dashboard/stats');
     return response.data;
   },
 
@@ -12,10 +31,6 @@ export const taskService = {
     return response.data;
   },
 
-  async createTask(data: CreateTaskData): Promise<Task> {
-    const response = await apiClient.post<Task>('/tasks', data);
-    return response.data;
-  },
 
   async updateTask(taskId: string, data: UpdateTaskData): Promise<Task> {
     const response = await apiClient.put<Task>(`/tasks/${taskId}`, data);

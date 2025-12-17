@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { taskService } from '../services/taskService';
-// import type { Task } from '../types';
+import { type Task } from '../types';
 
 interface UseTasksOptions {
   view?: 'all' | 'my' | 'assigned';
@@ -8,7 +8,7 @@ interface UseTasksOptions {
   status?: string;
   priority?: string;
   sortBy?: string;
-  assignedTo?: string;
+  assignedTo?: string; // Add this
   createdBy?: string;
 }
 
@@ -19,7 +19,7 @@ export const useTasks = (options: UseTasksOptions = {}) => {
     status,
     priority,
     sortBy = 'dueDate-asc',
-    assignedTo,
+    assignedTo, // FIXED: This variable should be defined
     createdBy,
   } = options;
 
@@ -34,19 +34,21 @@ export const useTasks = (options: UseTasksOptions = {}) => {
       if (status) params.status = status;
       if (priority) params.priority = priority;
       if (sortBy) params.sortBy = sortBy;
-      if (assignedTo) params.assignedTo = assignedTo;
+      if (assignedTo) params.assignedTo = assignedTo; // FIXED: Use the variable
       if (createdBy) params.createdBy = createdBy;
 
-      switch (view) {
-        case 'my':
-          params.assignedTo = 'me';
-          break;
-        case 'assigned':
-          params.assigned = 'true';
-          break;
+      if (view === 'my') {
+        params.assignedTo = 'me';
       }
 
-      return taskService.getTasks(params);
+      try {
+        const tasks = await taskService.getTasks(params);
+        console.log('✅ Tasks fetched:', tasks.length);
+        return tasks;
+      } catch (err) {
+        console.error('❌ Error fetching tasks:', err);
+        throw err;
+      }
     },
     staleTime: 1000 * 60, // 1 minute
     refetchOnWindowFocus: false,
