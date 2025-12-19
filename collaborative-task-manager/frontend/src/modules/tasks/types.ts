@@ -11,13 +11,15 @@ export interface Task {
   description: string;
   dueDate: string;
   priority: 'Low' | 'Medium' | 'High' | 'Urgent';
-  status: 'To Do' | 'In Progress' | 'Review' | 'Completed';
+  status: 'ToDo' | 'InProgress' | 'Review' | 'Completed';
   creatorId: string;
   assignedToId?: string;
   createdAt: string;
   updatedAt: string;
   creator: User;
-  assignedTo?: User;
+  assignedTo?: null | User ;
+  createdById: string; 
+  
 }
 
 export interface CreateTaskData {
@@ -26,7 +28,7 @@ export interface CreateTaskData {
   dueDate: string;
   priority: Task['priority'];
   status: Task['status'];
-  assignedToId?: string;
+  assignedToId?: string | null;
 }
 
 export interface UpdateTaskData extends Partial<CreateTaskData> {}

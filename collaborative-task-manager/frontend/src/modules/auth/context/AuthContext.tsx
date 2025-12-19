@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { authService } from '../services/authService';
 import { useNavigate } from 'react-router-dom';
-import { apiClient } from '../../../shared/services/apiClient';
 
 interface User {
   id: string;
@@ -10,8 +9,7 @@ interface User {
   createdAt?: string;
 }
 
-
-interface AuthContextType{
+interface AuthContextType {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
@@ -26,13 +24,9 @@ interface AuthContextType{
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-
-
 interface AuthProviderProps {
   children: ReactNode;
 }
-
-
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
@@ -41,69 +35,62 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  
-
   useEffect(() => {
-  console.log('🔄 AuthContext useEffect running');
-  console.log('🔄 AuthContext useEffect running');
-  
-  const validateToken = async () => {
-    console.log('🔍 Validating token...');
+    console.log('🔄 AuthContext useEffect running');
     
-    // Check what's actually in localStorage
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    
-    console.log('🔍 localStorage token:', storedToken);
-    console.log('🔍 localStorage user:', storedUser);
-    console.log('🔍 Is token "true"?', storedToken === 'true');
-    console.log('🔍 Is token JWT?', storedToken?.startsWith('eyJ'));
-    
-    if (!storedToken || storedToken === 'true') { // ← Check for "true" string
-      console.log('❌ Invalid or missing token');
-      setLoading(false);
-      return;
-    }
-    
-    // Token looks valid, set it
-    setToken(storedToken);
-    
-    
-    try {
-      setLoading(true);
-      setToken(storedToken);
-      console.log('📡 Fetching current user from backend...');
-      const freshUser = await authService.getCurrentUser();
-      console.log('✅ User fetched:', freshUser);
-      setUser(freshUser);
-    } catch (error: any) {
-      console.error('❌ Token validation failed:', error);
-      console.error('Error details:', error.message);
+    const validateToken = async () => {
+      const storedToken = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
       
-      // Use stored user as fallback
+      console.log('🔍 Stored token:', storedToken?.substring(0, 50) + '...');
+      console.log('🔍 Stored user:', storedUser);
+      
+      if (!storedToken) {
+        console.log('❌ No token found');
+        setLoading(false);
+        return;
+      }
+      
+      // Set token from storage first
+      setToken(storedToken);
+      
       if (storedUser) {
         try {
           const parsedUser = JSON.parse(storedUser);
-          console.log('🔄 Using stored user as fallback:', parsedUser.email);
+          console.log('🔄 Using stored user temporarily:', parsedUser.email);
           setUser(parsedUser);
-        } catch (parseError) {
-          console.error('Failed to parse stored user:', parseError);
+        } catch (error) {
+          console.error('Failed to parse stored user:', error);
         }
-      } else {
-        // No stored user, clear everything
-        console.log('🔄 No stored user, clearing auth');
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        setToken(null);
       }
-    } finally {
-      console.log('🏁 Auth loading complete');
-      setLoading(false);
-    }
-  };
+      
+      try {
+        console.log('📡 Fetching fresh user data from backend...');
+        const freshUser = await authService.getCurrentUser();
+        console.log('✅ Fresh user fetched:', freshUser.email);
+        
+        // Update with fresh data
+        setUser(freshUser);
+        localStorage.setItem('user', JSON.stringify(freshUser));
+        
+      } catch (error: any) {
+        console.error('❌ Failed to fetch fresh user:', error.message);
+        
+        // If token is invalid, clear everything
+        if (error.response?.status === 401) {
+          console.log('🔄 Token invalid, clearing auth data');
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setToken(null);
+          setUser(null);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  validateToken();
-}, []);
+    validateToken();
+  }, []);
 
   const clearError = () => setError(null);
 
@@ -112,45 +99,36 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setError(null);
     
     try {
-      console.log('🔐 Attempting login for:', email);
+      console.log('🔐 AuthContext.login called for:', email);
       
       const result = await authService.login(email, password);
       const { user: userData, token: newToken } = result;
       
-      console.log('✅ Login successful');
-      console.log('📝 Token received:', newToken?.substring(0, 50) + '...');
-      console.log('📝 User received:', userData);
+      console.log('✅ Login successful:', {
+        userEmail: userData.email,
+        tokenLength: newToken.length,
+        tokenStartsWith: newToken.substring(0, 20) + '...',
+      });
       
-      //Check if token is boolean true
-      if (newToken === 'true') {
-        console.error('❌ ERROR: Received boolean true instead of JWT token!');
-        console.error('Check authService.ts - it should return actual token string');
-        throw new Error('Invalid token received from server');
-      }
-      
-      // Store auth data
-      localStorage.setItem('token', newToken);
-      localStorage.setItem('user', JSON.stringify(userData));
-      
-      // CRITICAL FIX: Update BOTH user AND token states
+      // Update state
       setUser(userData);
       setToken(newToken);
       
-      console.log('✅ Auth state updated');
-      console.log('🔍 Current state:', { 
-        user: !!userData, 
-        token: !!newToken,
-        isAuthenticated: true 
-      });
+      console.log('✅ Auth state updated successfully');
       
       // Redirect to dashboard
       navigate('/dashboard', { replace: true });
       
     } catch (err: any) {
-      console.error('❌ Login error:', err);
+      console.error('❌ Login error in AuthContext:', {
+        message: err.message,
+        response: err.response?.data,
+      });
+      
       const errorMessage = err.response?.data?.error || err.message || 'Login failed';
       setError(errorMessage);
       throw new Error(errorMessage);
+      
     } finally {
       setLoading(false);
     }
@@ -161,20 +139,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setError(null);
     
     try {
-      const { user: userData, token } = await authService.register(name, email, password);
+      console.log('📝 AuthContext.register called for:', email);
       
-      // Store auth data
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(userData));
+      const result = await authService.register(name, email, password);
+      const { user: userData, token: newToken } = result;
+      
+      console.log('✅ Registration successful:', userData.email);
       
       // Update state
       setUser(userData);
-      setToken(token);
+      setToken(newToken);
       
       // Redirect to dashboard
       navigate('/dashboard', { replace: true });
       
     } catch (err: any) {
+      console.error('❌ Registration error:', err);
       const errorMessage = err.response?.data?.error || err.message || 'Registration failed';
       setError(errorMessage);
       throw new Error(errorMessage);
@@ -184,17 +164,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const logout = async () => {
+    console.log('🚪 AuthContext.logout called');
+    
     try {
       await authService.logout();
     } catch (error) {
-      console.error('Logout API error:', error);
+      console.error('Logout error:', error);
     } finally {
       // Always clear local state and storage
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
       setUser(null);
       setToken(null);
       setError(null);
+      
+      console.log('✅ Auth state cleared');
       
       // Redirect to login
       navigate('/login', { replace: true });
@@ -237,7 +219,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     </AuthContext.Provider>
   );
 };
-
 
 export const useAuth = () => {
   const context = useContext(AuthContext);

@@ -92,7 +92,7 @@ export class TaskService {
 
     if (filters.overdue === 'true') {
       where.dueDate = { lt: new Date() };
-      where.status = { not: 'Completed' };
+      where.status = { not: 'COMPLETED' };
     }
 
     // Ensure user can only see tasks they created or are assigned to
@@ -293,7 +293,7 @@ export class TaskService {
       prisma.task.count({
         where: {
           assignedToId: userId,
-          status: { not: 'Completed' },
+          status: { not: 'COMPLETED' },
         },
       }),
 
@@ -309,7 +309,7 @@ export class TaskService {
         where: {
           assignedToId: userId,
           dueDate: { lt: new Date() },
-          status: { not: 'Completed' },
+          status: { not: 'COMPLETED' },
         },
       }),
 
@@ -317,7 +317,7 @@ export class TaskService {
       prisma.task.count({
         where: {
           assignedToId: userId,
-          status: 'Completed',
+          status: 'COMPLETED',
         },
       }),
 
@@ -325,7 +325,7 @@ export class TaskService {
       prisma.task.count({
         where: {
           assignedToId: userId,
-          status: 'Completed',
+          status: 'COMPLETED',
           updatedAt: {
             gte: today,
           },
@@ -346,7 +346,7 @@ export class TaskService {
       prisma.task.count({
         where: {
           assignedToId: userId,
-          status: { not: 'Completed' },
+          status: { not: 'COMPLETED' },
           dueDate: {
             gte: tomorrow,
             lt: dayAfterTomorrow,
@@ -400,7 +400,7 @@ export class TaskService {
       where: {
         assignedToId: userId,
         dueDate: { lt: new Date() },
-        status: { not: 'Completed' },
+        status: { not: 'COMPLETED' },
       },
       include: {
         creator: {

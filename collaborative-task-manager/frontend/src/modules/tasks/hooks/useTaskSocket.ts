@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useSocket } from '../../../shared/context/SocketContext';
-import { Task } from '../types';
+import { type Task } from '../types';
 
 interface UseTaskSocketOptions {
   onTaskCreated?: (task: Task) => void;

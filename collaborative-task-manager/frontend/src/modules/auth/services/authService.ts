@@ -11,84 +11,148 @@ interface RegisterData {
   password: string;
 }
 
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  createdAt?: string;
+}
+
 interface AuthResponse {
   success: boolean;
   message: string;
   data: {
-    user: {
-      id: string;
-      email: string;
-      name: string;
-      createdAt?: string;
-    };
+    user: User;
     token: string;
   };
 }
 
-interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
-}
-
 export const authService = {
-  async login(email: string, password: string): Promise<AuthResponse['data']> {
-    const response = await apiClient.post<AuthResponse>('/auth/login', { email, password });
+  async login(email: string, password: string): Promise<{ user: User; token: string }> {
+    console.log('🔐 authService.login called for:', email);
     
-    if (!response.data.success) {
-      throw new Error(response.data.message || 'Login failed');
+    try {
+      const response = await apiClient.post<AuthResponse>('/auth/login', { email, password });
+      
+      console.log('✅ Login response received:', {
+        success: response.data.success,
+        message: response.data.message,
+        hasToken: !!response.data.data?.token,
+        tokenPreview: response.data.data?.token?.substring(0, 50) + '...',
+        userEmail: response.data.data?.user?.email,
+      });
+      
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Login failed');
+      }
+      
+      if (!response.data.data?.token) {
+        console.error('❌ No token in response data:', response.data);
+        throw new Error('No token received from server');
+      }
+      
+      // Store token immediately
+      localStorage.setItem('token', response.data.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.data.user));
+      
+      return {
+        user: response.data.data.user,
+        token: response.data.data.token
+      };
+      
+    } catch (error: any) {
+      console.error('❌ authService.login error:', {
+        message: error.message,
+        response: error.response?.data,
+      });
+      throw error;
     }
-    
-    // Store token immediately
-    localStorage.setItem('token', response.data.data.token);
-    
-    return {
-      user: response.data.data.user,
-      token: response.data.data.token // Actual JWT string
-    };
   },
 
-  async register(name: string, email: string, password: string): Promise<AuthResponse['data']> {
-    const response = await apiClient.post<AuthResponse>('/auth/register', {
-      name,
-      email,
-      password,
-    });
+  async register(name: string, email: string, password: string): Promise<{ user: User; token: string }> {
+    console.log('📝 authService.register called for:', email);
     
-    if (!response.data.success) {
-      throw new Error(response.data.message || 'Registration failed');
+    try {
+      const response = await apiClient.post<AuthResponse>('/auth/register', {
+        name,
+        email,
+        password,
+      });
+      
+      console.log('✅ Register response:', {
+        success: response.data.success,
+        hasToken: !!response.data.data?.token,
+        userEmail: response.data.data?.user?.email,
+      });
+      
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Registration failed');
+      }
+      
+      // Store token immediately
+      localStorage.setItem('token', response.data.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.data.user));
+      
+      return {
+        user: response.data.data.user,
+        token: response.data.data.token
+      };
+      
+    } catch (error: any) {
+      console.error('❌ Registration error:', error);
+      throw error;
     }
+  },
+
+  async getCurrentUser(): Promise<User> {
+    console.log('👤 authService.getCurrentUser called');
     
-    // Store token immediately
-    localStorage.setItem('token', response.data.data.token);
+    try {
+      // Use the correct endpoint from your backend
+      const response = await apiClient.get('/auth/profile');
+      
+      console.log('✅ Current user response:', response.data);
+      
+      // Handle both response formats
+      if (response.data.data) {
+        return response.data.data; // { success: true, data: user }
+      }
+      
+      return response.data; // Direct user object
+      
+    } catch (error: any) {
+      console.error('❌ Failed to get current user:', {
+        message: error.message,
+        status: error.response?.status,
+      });
+      throw error;
+    }
+  },
+
+  async updateProfile(userId: string, data: Partial<User>): Promise<User> {
+    try {
+      // Use the correct endpoint
+      const response = await apiClient.put(`/auth/profile`, data);
+      return response.data.data || response.data;
+    } catch (error: any) {
+      console.error('Update profile error:', error);
+      throw error;
+    }
+  },
+
+  async logout(): Promise<void> {
+    console.log('🚪 authService.logout called');
     
-    return {
-      user: response.data.data.user,
-      token: response.data.data.token // Actual JWT string
-    };
-  },
-
-  async getCurrentUser() {
-    // FIXED: Changed from /auth/profile to /auth/me
-    const response = await apiClient.get('/auth/me');
-    return response.data.data;
-  },
-
-  async updateProfile(userId: string, data: any) {
-    const response = await apiClient.put(`/users/${userId}`, data);
-    return response.data;
-  },
-
-  async logout() {
     try {
       await apiClient.post('/auth/logout');
-    } catch (error) {
-      console.error('Logout error:', error);
+      console.log('✅ Logout API call successful');
+    } catch (error: any) {
+      console.warn('⚠️ Logout API error (proceeding anyway):', error.message);
     } finally {
       // Always clear local storage
       localStorage.removeItem('token');
-      // Clear any other auth-related storage
       localStorage.removeItem('user');
+      console.log('🗑️ Local storage cleared');
     }
   },
 };

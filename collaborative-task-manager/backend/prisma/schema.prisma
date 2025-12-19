@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,78 +8,361 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  password  String
-  refreshToken  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
+  id               String     @id @default(cuid())
+  email            String     @unique
+  name             String
+  password         String
+  bio              String?    @db.Text
+  avatar           String?
+  phone            String?
+  location         String?
+  jobTitle         String?
+  department       String?
+  company          String?
+  website          String?
+  socialLinks      Json? // Store as JSON object
+  preferences      Json? // User preferences (theme, notifications, etc.)
+  emailVerified    Boolean    @default(false)
+  twoFactorEnabled Boolean    @default(false)
+  twoFactorSecret  String?
+  refreshToken     String?
+  role             Role       @default(USER)
+  status           UserStatus @default(ACTIVE)
+  lastLoginAt      DateTime?
+  deletedAt        DateTime?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
   // Relations
-  tasksCreated   Task[] @relation("TaskCreator")
-  tasksAssigned  Task[] @relation("TaskAssignee")
-  notifications  Notification[]
-  
+  createdTasks    Task[]         @relation("TaskCreator")
+  assignedTasks   Task[]         @relation("TaskAssignee")
+  activityLogs    ActivityLog[]
+  notifications   Notification[]
+  teamMemberships TeamMember[]
+  comments        Comment[]
+  attachments     Attachment[]
+  createdProjects Project[] // Add this inverse relation
+  timeLogs        TimeLog[] // Add this inverse relation
+
   @@map("users")
 }
 
-model Task {
+model Team {
   id          String   @id @default(cuid())
-  title       String   @db.VarChar(100)
-  description String?
-  dueDate     DateTime
-  priority    Priority
-  status      Status
+  name        String
+  description String?  @db.Text
+  avatar      String?
+  isPublic    Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
-  // Foreign keys
-  creatorId     String
-  assignedToId  String?
-  
+
   // Relations
-  creator     User   @relation("TaskCreator", fields: [creatorId], references: [id])
-  assignedTo  User?  @relation("TaskAssignee", fields: [assignedToId], references: [id])
-  
+  members  TeamMember[]
+  projects Project[]
+
+  @@map("teams")
+}
+
+model TeamMember {
+  id       String   @id @default(cuid())
+  userId   String
+  teamId   String
+  role     TeamRole @default(MEMBER)
+  joinedAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+  team Team @relation(fields: [teamId], references: [id])
+
+  @@unique([userId, teamId])
+  @@map("team_members")
+}
+
+model Project {
+  id          String    @id @default(cuid())
+  name        String
+  description String?   @db.Text
+  color       String? // For UI representation
+  isArchived  Boolean   @default(false)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Foreign keys
+  teamId    String?
+  creatorId String
+
+  // Relations
+  team    Team?   @relation(fields: [teamId], references: [id])
+  creator User    @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  tasks   Task[]
+  labels  Label[]
+
+  @@map("projects")
+}
+
+model Task {
+  id            String    @id @default(cuid())
+  title         String    @db.VarChar(200)
+  description   String?   @db.Text
+  dueDate       DateTime?
+  startDate     DateTime?
+  completedAt   DateTime?
+  priority      Priority  @default(MEDIUM)
+  status        Status    @default(TODO)
+  estimatedTime Int? // In minutes
+  actualTime    Int? // In minutes
+  order         Int       @default(0) // For drag-and-drop ordering
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Foreign keys
+  projectId    String?
+  creatorId    String
+  assignedToId String?
+  parentTaskId String?
+
+  // Relations
+  project     Project?     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  creator     User         @relation("TaskCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  assignedTo  User?        @relation("TaskAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  parentTask  Task?        @relation("TaskHierarchy", fields: [parentTaskId], references: [id], onDelete: Cascade)
+  subtasks    Task[]       @relation("TaskHierarchy")
+  labels      TaskLabel[]
+  comments    Comment[]
+  attachments Attachment[]
+  timeLogs    TimeLog[]
+
+  @@index([projectId])
+  @@index([assignedToId])
+  @@index([status])
+  @@index([dueDate])
   @@map("tasks")
 }
 
-model Notification {
-  id        String   @id @default(cuid())
-  type      NotificationType
-  title     String
-  message   String
-  read      Boolean  @default(false)
-  metadata  Json?
-  createdAt DateTime @default(now())
-  
-  // Foreign key
-  userId    String
-  
+model Label {
+  id          String   @id @default(cuid())
+  name        String
+  color       String
+  description String?
+  createdAt   DateTime @default(now())
+
+  // Foreign keys
+  projectId String?
+
   // Relations
-  user      User    @relation(fields: [userId], references: [id])
-  
+  project    Project?    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  taskLabels TaskLabel[]
+
+  @@unique([projectId, name])
+  @@map("labels")
+}
+
+model TaskLabel {
+  id      String @id @default(cuid())
+  taskId  String
+  labelId String
+
+  // Relations
+  task  Task  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  label Label @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, labelId])
+  @@map("task_labels")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Foreign keys
+  taskId   String
+  userId   String
+  parentId String? // For threaded comments
+
+  // Relations
+  task        Task         @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent      Comment?     @relation("CommentThread", fields: [parentId], references: [id], onDelete: Cascade)
+  replies     Comment[]    @relation("CommentThread")
+  attachments Attachment[]
+
+  @@map("comments")
+}
+
+model Attachment {
+  id           String   @id @default(cuid())
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int // In bytes
+  path         String
+  url          String
+  createdAt    DateTime @default(now())
+
+  // Foreign keys
+  taskId    String?
+  commentId String?
+  userId    String
+
+  // Relations
+  task    Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  comment Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("attachments")
+}
+
+model TimeLog {
+  id          String   @id @default(cuid())
+  description String?  @db.VarChar(500)
+  startTime   DateTime
+  endTime     DateTime
+  duration    Int // In minutes
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Foreign keys
+  taskId String
+  userId String
+
+  // Relations
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("time_logs")
+}
+
+model ActivityLog {
+  id         String         @id @default(cuid())
+  action     ActivityAction
+  entityType String // 'task', 'project', 'comment', etc.
+  entityId   String // ID of the entity
+  details    Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime       @default(now())
+
+  // Foreign key
+  userId String
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  type        NotificationType
+  title       String
+  message     String           @db.Text
+  read        Boolean          @default(false)
+  metadata    Json?
+  scheduledAt DateTime?
+  createdAt   DateTime         @default(now())
+
+  // Foreign keys
+  userId     String
+  entityType String? // Reference to related entity
+  entityId   String?
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@index([createdAt])
   @@map("notifications")
 }
 
+// Enums
+enum Role {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  DELETED
+}
+
+enum TeamRole {
+  MEMBER
+  LEADER
+  ADMIN
+}
+
 enum Priority {
-  Low
-  Medium
-  High
-  Urgent
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
 }
 
 enum Status {
-  ToDo
-  InProgress
-  Review
-  Completed
+  TODO
+  IN_PROGRESS
+  REVIEW
+  COMPLETED
 }
 
 enum NotificationType {
   TASK_ASSIGNED
   TASK_UPDATED
   TASK_OVERDUE
+  TASK_COMPLETED
+  COMMENT_ADDED
+  MENTION
+  PROJECT_INVITE
+  TEAM_INVITE
   SYSTEM
+  REMINDER
+}
+
+enum ActivityAction {
+  CREATE
+  UPDATE
+  DELETE
+  ASSIGN
+  COMPLETE
+  COMMENT
+  ATTACH
+  TIME_LOG
+  STATUS_CHANGE
+  PRIORITY_CHANGE
+  PROFILE_UPDATED
+  PASSWORD_CHANGED
+  AVATAR_UPLOADED
+  PREFERENCES_UPDATED
+  LOGIN
+  LOGOUT
+  ACCOUNT_DELETED
+}
+
+// Optional: Audit Log for sensitive operations
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String
+  entityType String
+  entityId   String?
+  oldValues  Json?
+  newValues  Json?
+  ipAddress  String?
+  userAgent  String?
+  userId     String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
 }

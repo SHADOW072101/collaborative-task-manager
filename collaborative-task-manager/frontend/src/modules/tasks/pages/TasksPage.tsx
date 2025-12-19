@@ -1,6 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../auth/hooks/useAuth';
-import { useUsers } from '../../users/hooks/useUsers';
 import { Button } from '../../../shared/components/Button';
 import { TaskFilters } from '../components/TaskFilters';
 import { TaskCard } from '../components/TaskCard';
@@ -19,7 +18,6 @@ interface TasksPageProps {
 
 export const TasksPage = ({ view = 'my' }: TasksPageProps) => {
   const { user } = useAuth();
-  const { users, loading: usersLoading } = useUsers(); // Fetch users
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -92,20 +90,38 @@ export const TasksPage = ({ view = 'my' }: TasksPageProps) => {
     setSortBy('dueDate-asc');
   };
 
-  // Filter users to exclude current user from assignees
-  const availableUsers = users.filter(u => u.id !== user?.id);
-
   const pageTitle = view === 'all' ? 'All Tasks' : view === 'assigned' ? 'Assigned Tasks' : 'My Tasks';
 
   // Format date for form (safely handle different date formats)
   const formatDateForForm = (dateString: string) => {
     try {
       const date = new Date(dateString);
-      return format(date, 'yyyy-MM-dd');
+      return format(date, "yyyy-MM-dd'T'HH:mm"); // Fixed format for datetime-local
     } catch {
       return '';
     }
   };
+
+  // Debug task filtering
+  useEffect(() => {
+    if (tasks) {
+      console.log('🔍 Task filtering analysis:', {
+        allTasks: tasks.length,
+        view,
+        user: user?.id,
+        filteredByView: view === 'my' 
+          ? tasks.filter(t => t.createdById === user?.id).length 
+          : tasks.length,
+        hasSearch: !!search,
+        searchMatches: search 
+          ? tasks.filter(t => 
+              t.title.toLowerCase().includes(search.toLowerCase()) ||
+              t.description?.toLowerCase().includes(search.toLowerCase())
+            ).length
+          : tasks.length,
+      });
+    }
+  }, [tasks, view, user, search]);
 
   return (
     <div className="space-y-6">
@@ -204,7 +220,7 @@ export const TasksPage = ({ view = 'my' }: TasksPageProps) => {
         <TaskForm
           onSubmit={handleCreateTask}
           loading={mutationsLoading}
-          users={availableUsers}
+          // No users prop needed - TaskForm fetches users internally
         />
       </Modal>
 
@@ -219,7 +235,7 @@ export const TasksPage = ({ view = 'my' }: TasksPageProps) => {
           <TaskForm
             onSubmit={(data) => handleUpdateTask(editingTask.id, data)}
             loading={mutationsLoading}
-            users={availableUsers}
+            // No users prop needed - TaskForm fetches users internally
             initialData={{
               title: editingTask.title,
               description: editingTask.description || '',

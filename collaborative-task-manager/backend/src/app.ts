@@ -13,6 +13,7 @@ import { notFoundHandler } from './core/middleware/notFoundHandler';
 import authRoutes from './modules/auth/auth.routes';
 import { setupSocket } from './core/socket/socketServer';
 import userRoutes from './modules/users/user.routes';
+import path from 'path/win32';
 
 const app = express();
 const httpServer = createServer(app);
@@ -52,6 +53,8 @@ app.options('*', cors({
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
+
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // API Routes
 app.use('/api/auth', authRoutes);

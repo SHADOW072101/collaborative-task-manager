@@ -61,8 +61,6 @@ export class NotificationController {
         }
       });
 
-      // Emit socket event for real-time notification
-      // You'll need to implement socket.io integration
 
       return res.status(201).json({
         success: true,

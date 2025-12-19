@@ -13,6 +13,20 @@ export interface TokenPayload {
   exp?: number;
 }
 
+// declare global {
+//   namespace Express {
+//     interface Request {
+//       user?: {
+//         id: string;
+//         email: string;
+//         name?: string;
+//         role: string;
+//         status: string;
+//       };
+//     }
+//   }
+// }
+
 // Authentication middleware
 export const authenticate = async (
   req: Request,
@@ -51,6 +65,8 @@ export const authenticate = async (
         id: true,
         email: true,
         name: true,
+        role: true,
+        status: true
       }
     });
 
@@ -68,7 +84,8 @@ export const authenticate = async (
       id: user.id,
       email: user.email,
       name: user.name,
-      
+      role: user.role,
+      status: user.status
     };
 
     next();
