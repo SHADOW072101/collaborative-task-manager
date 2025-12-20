@@ -43,7 +43,7 @@ app.use(helmet());
 
 app.use(cors({
   origin: [env.FRONTEND_URL,
-    'https://your-frontend-domain.vercel.app',
+    'https://collaborative-task-manager-81xh.vercel.app/',
     /\.vercel\.app$/
   ], 
   credentials: true,
@@ -57,7 +57,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.options('*', cors({
   origin:[env.FRONTEND_URL,
-    'https://your-frontend-domain.vercel.app',
+    'https://collaborative-task-manager-81xh.vercel.app/',
     /\.vercel\.app$/
   ], 
   credentials: true,

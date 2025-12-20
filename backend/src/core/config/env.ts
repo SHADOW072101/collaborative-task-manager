@@ -11,7 +11,7 @@ const envSchema = z.object({
   REFRESH_TOKEN_SECRET: z.string().min(32).default(""),
   REFRESH_TOKEN_EXPIRES_IN: z.string().default('30d'),
   
-  FRONTEND_URL: z.string().url().default('http://localhost:5173'),
+  FRONTEND_URL: z.string().url().default('https://collaborative-task-manager-81xh.vercel.app/'),
 });
 
 export const env = envSchema.parse(process.env);
