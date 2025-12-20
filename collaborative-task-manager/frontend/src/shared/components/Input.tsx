@@ -1,7 +1,10 @@
 import { forwardRef, type InputHTMLAttributes } from 'react';
+import { type ReactNode } from 'react';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
+  icon?: ReactNode;
+  leftAddon?: string;
   error?: string;
   helperText?: string;
 }

@@ -3,7 +3,7 @@ import { Button } from '../../../shared/components/Button';
 import { Select } from '../../../shared/components/Select';
 import { Switch } from '../../../shared/components/Switch';
 import { Bell, Mail, Moon, Globe, CheckCircle, XCircle } from 'lucide-react';
-import { UpdatePreferencesData } from '../types';
+import { type UpdatePreferencesData } from '../types';
 
 interface PreferencesFormProps {
   initialData?: {

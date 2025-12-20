@@ -172,6 +172,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       console.error('Logout error:', error);
     } finally {
       // Always clear local state and storage
+      localStorage.removeItem('token');
+      // Clear any other auth-related storage
+      localStorage.removeItem('user');
       setUser(null);
       setToken(null);
       setError(null);
@@ -221,6 +224,36 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 };
 
 export const useAuth = () => {
+
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  const logout = async () => {
+    console.log('🚪 AuthContext.logout called');
+    
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      // Always clear local state and storage
+      localStorage.removeItem('token');
+      // Clear any other auth-related storage
+      localStorage.removeItem('user');
+      setUser(null);
+      setToken(null);
+      setError(null);
+      
+      console.log('✅ Auth state cleared');
+      
+      // Redirect to login
+      navigate('/login', { replace: true });
+    }
+    return logout
+  };
+
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');

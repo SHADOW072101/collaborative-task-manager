@@ -1,19 +1,23 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import taskRoutes from './modules/tasks/task.routes';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import path from 'path'; // ✅ Changed from path/win32 to path
+
 import { env } from './core/config/env';
 import { errorHandler } from './core/middleware/errorHandler';
 import { notFoundHandler } from './core/middleware/notFoundHandler';
+
+// Route imports
 import authRoutes from './modules/auth/auth.routes';
-import { setupSocket } from './core/socket/socketServer';
+import taskRoutes from './modules/tasks/task.routes';
 import userRoutes from './modules/users/user.routes';
-import path from 'path/win32';
+
+import { setupSocket } from './core/socket/socketServer';
 
 const app = express();
 const httpServer = createServer(app);
@@ -28,9 +32,14 @@ const io = new Server(httpServer, {
   transports: ['websocket', 'polling'],
 });
 
+// ✅ Add debug logging middleware FIRST
+app.use((req, res, next) => {
+  console.log(`📥 ${new Date().toISOString()} ${req.method} ${req.originalUrl}`);
+  next();
+});
+
 // Middleware
 app.use(helmet());
-
 
 app.use(cors({
   origin: env.FRONTEND_URL, 
@@ -50,17 +59,25 @@ app.options('*', cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
 }));
 
+// Health check
 app.get('/health', (req, res) => {
+  console.log('✅ Health check called');
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Static files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// API Routes
+// ✅ API Routes - NO DUPLICATES
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
-app.use('/api/users', userRoutes);
+app.use('/api/users', userRoutes); // ✅ Only once!
 
+// Debug: Add a test route
+app.get('/api/test-route', (req, res) => {
+  console.log('✅ Test route reached');
+  res.json({ success: true, message: 'Test route works' });
+});
 
 // Error handling
 app.use(notFoundHandler);
@@ -75,6 +92,12 @@ httpServer.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📁 Environment: ${env.NODE_ENV}`);
   console.log(`🔗 Frontend URL: ${env.FRONTEND_URL}`);
+  console.log('✅ Registered routes:');
+  console.log('   GET  /api/auth/*');
+  console.log('   GET  /api/tasks/*');
+  console.log('   GET  /api/users/*');
+  console.log('   GET  /health');
+  console.log('   GET  /api/test-route');
 });
 
 export { io };

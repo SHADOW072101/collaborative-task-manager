@@ -10,8 +10,8 @@ export interface Task {
   title: string;
   description: string;
   dueDate: string;
-  priority: 'Low' | 'Medium' | 'High' | 'Urgent';
-  status: 'ToDo' | 'InProgress' | 'Review' | 'Completed';
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  status: 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'COMPLETED';
   creatorId: string;
   assignedToId?: string;
   createdAt: string;

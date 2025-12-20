@@ -1,15 +1,54 @@
 import { apiClient } from '../../../shared/services/apiClient';
 import { type UserProfile, type UpdateProfileData, type UpdatePreferencesData, type UpdatePasswordData } from '../types';
 
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  createdAt: string;
+}
 
-
+export interface SearchUsersResponse {
+  success: boolean;
+  data: User[];
+  count: number;
+  message?: string;
+}
 
 export const userService = {
-  // Get user profile
-  async getProfile(userId: string): Promise<UserProfile> {
-    const response = await apiClient.get(`/users/${userId}/profile`);
-    return response.data.data || response.data;
+  // Search users by name or email
+  searchUsers: async (query: string, limit: number = 10): Promise<SearchUsersResponse> => {
+    const response = await apiClient.get<SearchUsersResponse>('/users/search', {
+      params: { 
+        query, 
+        limit,
+        excludeCurrent: true
+      },
+    });
+    return response.data;
   },
+
+  // Get user by ID
+  getUser: async (userId: string): Promise<{ success: boolean; data: User }> => {
+    const response = await apiClient.get<{ success: boolean; data: User }>(`/users/${userId}`);
+    return response.data;
+  },
+
+  // Get current user
+  getCurrentUser: async (): Promise<{ data: User }> => {
+    const response = await apiClient.get<{ data: User }>('/users/me');
+    return response.data;
+  },
+
+
+
+// export const userService = {
+//   // Get user profile
+//   async getProfile(userId: string): Promise<UserProfile> {
+//     const response = await apiClient.get(`/users/${userId}/profile`);
+//     return response.data.data || response.data;
+//   },
 
   // Update profile
   async updateProfile(userId: string, data: UpdateProfileData): Promise<UserProfile> {

@@ -5,8 +5,8 @@ const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'My Tasks', href: '/tasks', icon: CheckSquare },
   { name: 'All Tasks', href: '/tasks/all', icon: Users },
-  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  // { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+  { name: 'Settings', href: '/profile', icon: Settings },
 ];
 
 export const Sidebar = () => {

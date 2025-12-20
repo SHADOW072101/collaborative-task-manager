@@ -34,6 +34,7 @@ const taskFiltersSchema = z.object({
   createdBy: z.string().optional(),
   overdue: z.enum(['true', 'false']).optional(),
   sortBy: z.enum(['dueDate-asc', 'dueDate-desc', 'priority-asc', 'priority-desc', 'createdAt-desc']).optional(),
+  view: z.enum(['all', 'my', 'assigned']).optional(),
 });
 
 const assignTaskSchema = z.object({
@@ -84,28 +85,40 @@ export class TaskController {
 
   // Get all tasks with filters
   async getTasks(req: Request, res: Response) {
-    try {
-      if (!req.user) {
-        res.status(401).json({ error: 'Unauthorized' });
-        return;
-      }
+  try {
+    if (!req.user) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
 
-      const validatedFilters = taskFiltersSchema.parse(req.query);
-      
-      // If assignedTo is 'me', use current user's ID
-      const filters = { ...validatedFilters };
-      if (filters.assignedTo === 'me') {
-        filters.assignedTo = req.user.id;
-      }
-      
-      const tasks = await taskService.getTasks(filters, req.user.id);
+    const validatedFilters = taskFiltersSchema.parse(req.query);
+    
+    // Handle view parameter
+    const filters = { ...validatedFilters };
+    
+    // IMPORTANT: Set filters based on view parameter
+    if (filters.view === 'my') {
+      // For "my tasks", show tasks where user is creator OR assignee
+      // We'll handle this in the service by not setting assignedTo/createdBy
+      delete filters.assignedTo;
+      delete filters.createdBy;
+    } else if (filters.view === 'assigned') {
+      // For "assigned tasks", filter by assignedTo = current user
+      filters.assignedTo = req.user.id;
+    }
+    // For "all" view, use whatever filters are provided
+    
+    // Remove view from filters since service doesn't need it
+    delete filters.view;
+    
+    const tasks = await taskService.getTasks(filters, req.user.id);
 
-      res.status(200).json({
-        success: true,
-        data: tasks,
-        count: tasks.length,
-      });
-    } catch (error: any) {
+    res.status(200).json({
+      success: true,
+      data: tasks,
+      count: tasks.length,
+    });
+  } catch (error: any) {
       if (error instanceof z.ZodError) {
         res.status(400).json({
           success: false,

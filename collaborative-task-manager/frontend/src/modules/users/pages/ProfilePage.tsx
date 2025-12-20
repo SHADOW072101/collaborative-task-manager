@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import {  User,   Settings,  Shield,  Bell,  Calendar,  Activity,  Mail,  Phone,  MapPin,  Globe,  ExternalLink} from 'lucide-react';
-import { Button } from '../../../shared/components/Button';
-import { AvatarUpload } from '../components/AvatarUpload';
+// import { Button } from '../../../shared/components/Button';
+// import { AvatarUpload } from '../components/AvatarUpload';
 import { ProfileForm } from '../components/ProfileForm';
-import { PreferencesForm } from '../components/PreferencesForm';
+// import { PreferencesForm } from '../components/PreferencesForm';
 import { SecuritySettings } from '../components/SecuritySettings';
 import { useCurrentProfile } from '../hooks/useUsers';
 
@@ -20,14 +20,14 @@ export const ProfilePage = () => {
     profile, 
     isLoading, 
     updateProfile, 
-    updatePreferences,
+    // updatePreferences,
     changePassword,
-    uploadAvatar,
+    // uploadAvatar,
     toggleTwoFactor,
     sendVerificationEmail,
     activityLogs,
     isUpdatingProfile,
-    isUploadingAvatar,
+    // isUploadingAvatar,
   } = useCurrentProfile();
 
   if (isLoading) {
@@ -46,7 +46,7 @@ export const ProfilePage = () => {
       case 'profile':
         return (
           <div className="space-y-8">
-            <div className="bg-white border rounded-lg p-6">
+            {/* <div className="bg-white border rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Profile Picture
               </h3>
@@ -55,7 +55,7 @@ export const ProfilePage = () => {
                 onUpload={uploadAvatar}
                 isUploading={isUploadingAvatar}
               />
-            </div>
+            </div> */}
 
             <div className="bg-white border rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-6">
@@ -70,16 +70,16 @@ export const ProfilePage = () => {
           </div>
         );
 
-      case 'preferences':
-        return (
-          <div className="bg-white border rounded-lg p-6">
-            <PreferencesForm
-              initialData={profile?.preferences}
-              onSubmit={updatePreferences}
-              loading={isUpdatingProfile}
-            />
-          </div>
-        );
+      // case 'preferences':
+      //   return (
+      //     <div className="bg-white border rounded-lg p-6">
+      //       <PreferencesForm
+      //         initialData={profile?.preferences}
+      //         onSubmit={updatePreferences}
+      //         loading={isUpdatingProfile}
+      //       />
+      //     </div>
+      //   );
 
       case 'security':
         return (

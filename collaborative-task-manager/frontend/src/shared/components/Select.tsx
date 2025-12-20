@@ -1,21 +1,42 @@
-import { forwardRef, type SelectHTMLAttributes } from 'react';
+// Select.tsx
+import { forwardRef, type SelectHTMLAttributes, type ChangeEvent } from 'react';
 
 interface SelectOption {
   value: string;
   label: string;
 }
 
-interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'options'> {
+// Use the correct interface - HTML select onChange gives ChangeEvent, not string
+interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'onChange'> {
   label?: string;
   error?: string;
+  value: string;
   helperText?: string;
   options: SelectOption[];
   placeholder?: string;
+  onChange?: any;
 }
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  ({ label, error, helperText, options, placeholder, className, id, ...props }, ref) => {
+  ({ 
+    label, 
+    error, 
+    helperText, 
+    options, 
+    placeholder, 
+    className, 
+    id,
+    onChange, // Get our custom onChange
+    ...props 
+  }, ref) => {
     const selectId = id || label?.toLowerCase().replace(/\s+/g, '-');
+    
+    // Handle HTML select change event and convert to string
+    const handleChange = (e: ChangeEvent<HTMLSelectElement>) => {
+      if (onChange) {
+        onChange(e.target.value); // Convert event to string
+      }
+    };
     
     return (
       <div className="space-y-1">
@@ -32,8 +53,9 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             focus:outline-none focus:ring-2 focus:border-blue-500
             disabled:bg-gray-100 disabled:cursor-not-allowed
             ${error ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}
-            ${className}
+            ${className || ''}
           `}
+          onChange={handleChange} // Use our handler
           {...props}
         >
           {placeholder && (

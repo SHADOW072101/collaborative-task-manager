@@ -3,13 +3,18 @@ import prisma from '../../core/database/prisma';
 import bcrypt from 'bcrypt';
 import { logger } from '../../core/utils/logger';
 import { fileUploadUtils } from '../../core/middleware/upload';
+import { asyncHandler } from '../../shared';
 
 export const userController = {
   async getUsers(req: Request, res: Response) {
+     console.log('🚨🚨🚨 getUsers FUNCTION CALLED 🚨🚨🚨');
     try {
       // Check authentication
       if (!req.user) {
-        return res.status(401).json({ error: 'Authentication required' });
+        return res.status(401).json({ 
+          success: false,
+          error: 'Authentication required' 
+        });
       }
       
       const { search, limit = '10' } = req.query;
@@ -42,12 +47,50 @@ export const userController = {
         orderBy: { name: 'asc' }
       });
       
-      res.json(users);
+      // ✅ Always return 200, even for empty results
+      res.status(200).json({
+        success: true,
+        data: users,
+        count: users.length,
+      });
+      
     } catch (error) {
       logger.error('Error fetching users:', error);
-      res.status(500).json({ error: 'Failed to fetch users' });
+      res.status(500).json({ 
+        success: false,
+        error: 'Failed to fetch users' 
+      });
     }
-  },
+},
+
+
+  getUserById: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        avatar: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: user,
+    });
+  }),
 
   async getMyProfile(req: Request, res: Response) {
     try {
@@ -162,6 +205,76 @@ export const userController = {
       res.status(500).json({ error: 'Failed to update profile' });
     }
   },
+
+
+  searchUsers: asyncHandler(async (req: Request, res: Response) => {
+    console.log('🚨🚨🚨 searchUsers FUNCTION CALLED 🚨🚨🚨');
+    console.log('Full request query:', req.query);
+    console.log('Query parameter:', req.query.query);
+    console.log('Limit parameter:', req.query.limit);
+    
+    const { query, limit = 10 } = req.query;
+    console.log('Extracted query:', query);
+    console.log('Type of query:', typeof query);
+    
+    if (!query || typeof query !== 'string') {
+      console.log('❌ Query validation failed');
+      return res.status(400).json({
+        success: false,
+        message: 'Search query is required'
+      });
+    }
+    
+    const searchTerm = query.trim();
+    console.log('Search term after trim:', searchTerm);
+    
+    if (searchTerm.length < 1) {
+      console.log('❌ Search term is empty after trim');
+      return res.status(400).json({
+        success: false,
+        message: 'Search query cannot be empty'
+      });
+    }
+    
+    console.log('🔍 Searching for:', searchTerm);
+    
+    try {
+      const users = await prisma.user.findMany({
+        where: {
+          OR: [
+            { name: { contains: searchTerm, mode: 'insensitive' } },
+            { email: { contains: searchTerm, mode: 'insensitive' } },
+          ],
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          avatar: true,
+          createdAt: true,
+        },
+        take: parseInt(limit as string) || 10,
+        orderBy: { name: 'asc' },
+      });
+      
+      console.log('✅ Found users:', users.length);
+      console.log('Users:', JSON.stringify(users, null, 2));
+      
+      // ✅ Make sure this is ALWAYS 200, even for empty results
+      return res.status(200).json({
+        success: true,
+        data: users,
+        count: users.length,
+      });
+      
+    } catch (error) {
+      console.error('❌ Database error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Database error occurred'
+      });
+    }
+  }),
 
   async updateMyPreferences(req: Request, res: Response) {
     try {

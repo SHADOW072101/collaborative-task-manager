@@ -1,21 +1,43 @@
-import { useState, type JSXElementConstructor, type Key, type ReactElement, type ReactNode, type ReactPortal } from 'react';
+import { useState } from 'react';
 import { Button } from '../../../shared/components/Button';
 import { DashboardStats } from '../components/DashboardStats';
 import { TaskOverview } from '../components/TaskOverview';
 import { TaskListSkeleton } from '../../tasks/components/TaskListSkeleton';
 import { useTasks } from '../../tasks/hooks/useTasks';
 import { useAuth } from '../../auth/hooks/useAuth';
-import  {useUsers} from '../../users/hooks/useUsers'
+import { useUsers } from '../../users/hooks/useUsers';
 import { useTaskMutations } from '../../tasks/hooks/useTaskMutations';
 import { Plus, Calendar, CheckCircle, Clock } from 'lucide-react';
 import { Modal } from '../../../shared/components/Modal';
 import { TaskForm } from '../../tasks/components/TaskForm';
 import { Link } from 'react-router-dom';
 
+// Define interfaces at the top
+interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  dueDate: string;
+  status: string;
+  priority: string;
+  creatorId: string;
+  assignedToId?: string; 
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  jobTitle?: string;
+  department?: string;
+}
 
 export const DashboardPage = () => {
   const { user } = useAuth();
-  const { users, loading: usersLoading } = useUsers();
+  const { users } = useUsers();
   const [showCreateModal, setShowCreateModal] = useState(false);
   
   // Fetch all tasks for the current user
@@ -31,23 +53,24 @@ export const DashboardPage = () => {
     refetch();
   };
 
-  const availableUsers = users.filter(u => u.id !== user?.id);
-
-  // Dynamic calculations
-  const assignedTasks = tasks.filter((task: { assignedToId: string | undefined; }) => task.assignedToId === user?.id);
-  const createdTasks = tasks.filter((task: { creatorId: string | undefined; }) => task.creatorId === user?.id);
+  // Ensure users is always an array
+  const safeUsers = Array.isArray(users) ? users : [];
   
-  const overdueTasks = tasks.filter((task: { dueDate: string | number | Date; status: string; }) => {
+  // Dynamic calculations with proper typing
+  const assignedTasks = tasks.filter((task: Task) => task.assignedToId === user?.id);
+  const createdTasks = tasks.filter((task: Task) => task.creatorId === user?.id);
+  
+  const overdueTasks = tasks.filter((task: Task) => {
     const dueDate = new Date(task.dueDate);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return dueDate < today && task.status !== 'Completed';
   });
 
-  const completedTasks = tasks.filter((task: { status: string; }) => task.status === 'Completed');
+  const completedTasks = tasks.filter((task: Task) => task.status === 'Completed');
   
   // Tasks completed today
-  const tasksCompletedToday = tasks.filter((task: { status: string; updatedAt: string | number | Date; }) => {
+  const tasksCompletedToday = tasks.filter((task: Task) => {
     if (task.status !== 'Completed') return false;
     const completedDate = new Date(task.updatedAt);
     const today = new Date();
@@ -55,7 +78,7 @@ export const DashboardPage = () => {
   }).length;
 
   // Tasks created this week
-  const tasksCreatedThisWeek = tasks.filter((task: { createdAt: string | number | Date; }) => {
+  const tasksCreatedThisWeek = tasks.filter((task: Task) => {
     const createdDate = new Date(task.createdAt);
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
@@ -63,7 +86,7 @@ export const DashboardPage = () => {
   }).length;
 
   // Tasks due tomorrow
-  const tasksDueTomorrow = tasks.filter((task: { status: string; dueDate: string | number | Date; }) => {
+  const tasksDueTomorrow = tasks.filter((task: Task) => {
     if (task.status === 'Completed') return false;
     const dueDate = new Date(task.dueDate);
     const tomorrow = new Date();
@@ -78,7 +101,7 @@ export const DashboardPage = () => {
 
   // Recent activity (last 5 updated tasks)
   const recentActivity = tasks
-    .sort((a: { updatedAt: string | number | Date; }, b: { updatedAt: string | number | Date; }) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    .sort((a: Task, b: Task) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
     .slice(0, 3);
 
   return (
@@ -157,7 +180,7 @@ export const DashboardPage = () => {
             <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
               <div className="space-y-3">
-                {recentActivity.map((task: { id: Key | null | undefined; title: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; status: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; updatedAt: string | number | Date; }) => (
+                {recentActivity.map((task: Task) => (
                   <div key={task.id} className="flex items-start justify-between p-3 hover:bg-gray-50 rounded-lg">
                     <div className="flex-1">
                       <p className="text-sm font-medium text-gray-900 truncate">{task.title}</p>
@@ -193,7 +216,6 @@ export const DashboardPage = () => {
         <TaskForm
           onSubmit={handleCreateTask}
           loading={isCreating}
-          users={users.filter(u => u.id !== user?.id)} // Exclude current user from assignees
         />
       </Modal>
     </div>

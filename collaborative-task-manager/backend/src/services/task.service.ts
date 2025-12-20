@@ -64,42 +64,57 @@ export class TaskService {
 
   // Get tasks with filters
   async getTasks(filters: TaskFilters, userId: string) {
-    const where: Prisma.TaskWhereInput = {};
-
-    // Apply filters
-    if (filters.search) {
-      where.OR = [
-        { title: { contains: filters.search, mode: 'insensitive' } },
-        { description: { contains: filters.search, mode: 'insensitive' } },
-      ];
-    }
-
-    if (filters.status) {
-      where.status = filters.status;
-    }
-
-    if (filters.priority) {
-      where.priority = filters.priority;
-    }
-
-    if (filters.assignedTo) {
-      where.assignedToId = filters.assignedTo;
-    }
-
-    if (filters.createdBy) {
-      where.creatorId = filters.createdBy;
-    }
-
-    if (filters.overdue === 'true') {
-      where.dueDate = { lt: new Date() };
-      where.status = { not: 'COMPLETED' };
-    }
-
-    // Ensure user can only see tasks they created or are assigned to
-    where.OR = [
+    const baseCondition: Prisma.TaskWhereInput = {
+    OR: [
       { creatorId: userId },
       { assignedToId: userId },
-    ];
+    ]
+  };
+
+  // Build additional filter conditions
+  const filterConditions: Prisma.TaskWhereInput[] = [];
+
+  if (filters.search) {
+    filterConditions.push({
+      OR: [
+        { title: { contains: filters.search, mode: 'insensitive' } },
+        { description: { contains: filters.search, mode: 'insensitive' } },
+      ]
+    });
+  }
+
+  if (filters.status) {
+    filterConditions.push({ status: filters.status });
+  }
+
+  if (filters.priority) {
+    filterConditions.push({ priority: filters.priority });
+  }
+
+  if (filters.assignedTo) {
+    filterConditions.push({ assignedToId: filters.assignedTo });
+  }
+
+  if (filters.createdBy) {
+    filterConditions.push({ creatorId: filters.createdBy });
+  }
+
+  if (filters.overdue === 'true') {
+    filterConditions.push({
+      dueDate: { lt: new Date() },
+      status: { not: 'COMPLETED' },
+    });
+  }
+
+  // Combine base condition with additional filters
+  const where: Prisma.TaskWhereInput = filterConditions.length > 0
+    ? {
+        AND: [
+          baseCondition,
+          ...filterConditions,
+        ]
+      }
+    : baseCondition;
 
     // Determine sort order
     let orderBy: Prisma.TaskOrderByWithRelationInput = {};
@@ -368,31 +383,34 @@ export class TaskService {
 
   // Get tasks for current user
   async getMyTasks(userId: string) {
-    return prisma.task.findMany({
-      where: {
-        assignedToId: userId,
-      },
-      include: {
-        creator: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-        assignedTo: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
+  return prisma.task.findMany({
+    where: {
+      OR: [
+        { creatorId: userId },
+        { assignedToId: userId },
+      ]
+    },
+    include: {
+      creator: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
         },
       },
-      orderBy: {
-        dueDate: 'asc',
+      assignedTo: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
       },
-    });
-  }
+    },
+    orderBy: {
+      dueDate: 'asc',
+    },
+  });
+}
 
   // Get overdue tasks
   async getOverdueTasks(userId: string) {

@@ -6,10 +6,11 @@ import { Button } from '../../../shared/components/Button';
 import { Input } from '../../../shared/components/Input';
 import { TextArea } from '../../../shared/components/TextArea';
 import { User, Mail, Phone, MapPin, Briefcase, Building, Globe } from 'lucide-react';
-import { type UpdateProfileData } from '../types';
+import { type UpdateProfileData, type UserProfile } from '../types';
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100),
+  email: z.string().email('Please enter a valid email address').optional(),
   bio: z.string().max(500).optional(),
   phone: z.string().optional(),
   location: z.string().optional(),
@@ -29,7 +30,7 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 
 interface ProfileFormProps {
   initialData?: Partial<ProfileFormData>;
-  onSubmit: (data: UpdateProfileData) => Promise<void>;
+  onSubmit: (data: UpdateProfileData) => Promise<UserProfile | void>;
   loading?: boolean;
 }
 

@@ -6,13 +6,12 @@ import { authorizeUser } from './user.middleware';
 
 const router = Router();
 
-// Public routes (no auth required for some actions)
-router.get('/', authenticate, userController.getUsers); // Get users list/search
+// ========== PUBLIC ROUTES (if any) ==========
 
-// All routes below require authentication
-router.use(authenticate);
+// ========== PROTECTED ROUTES ==========
+router.use(authenticate); // All routes below require auth
 
-// Current user routes (uses :userId = 'me')
+// ========== CURRENT USER ROUTES ==========
 router.get('/me/profile', userController.getMyProfile);
 router.put('/me/profile', userController.updateMyProfile);
 router.patch('/me/preferences', userController.updateMyPreferences);
@@ -23,9 +22,12 @@ router.post('/me/send-verification-email', userController.sendVerificationEmail)
 router.get('/me/activity', userController.getMyActivityLogs);
 router.delete('/me/account', userController.deleteMyAccount);
 
-// Admin routes (require specific user ID)
-router.get('/:userId/profile', authorizeUser, userController.getMyProfile);
-router.put('/:userId/profile', authorizeUser, userController.updateMyProfile);
-// router.get('/:userId/activity', authorizeUser, userController.getUserActivityLogs);
+// ========== USER SEARCH ROUTES (MUST come before /:id) ==========
+router.get('/search', userController.searchUsers);
+router.get('/', userController.getUsers); // For getting all users
+
+// ========== SPECIFIC USER ROUTES (DYNAMIC - MUST come last) ==========
+router.get('/:id', userController.getUserById);
+
 
 export default router;

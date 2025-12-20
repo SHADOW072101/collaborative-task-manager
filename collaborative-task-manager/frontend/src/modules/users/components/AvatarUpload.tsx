@@ -3,7 +3,7 @@ import { Camera, X, Loader2 } from 'lucide-react';
 import { Button } from '../../../shared/components/Button';
 
 interface AvatarUploadProps {
-  currentAvatar?: string;
+  currentAvatar?: File;
   onUpload: (file: File) => Promise<void>;
   isUploading?: boolean;
 }

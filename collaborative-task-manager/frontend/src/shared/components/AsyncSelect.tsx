@@ -1,5 +1,5 @@
 // src/shared/components/AsyncSelect.tsx
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Search } from 'lucide-react';
 
 interface Option {
@@ -15,10 +15,11 @@ interface AsyncSelectProps {
   value?: string;
   onChange?: (value: string) => void;
   onSearch: (searchTerm: string) => Promise<Option[]>;
-  onLoadInitialValue?: (value: string) => Promise<Option[]>; // New prop
+  onLoadInitialValue?: (value: string) => Promise<Option[]>;
   debounceTime?: number;
   isLoading?: boolean;
   defaultOptions?: Option[];
+  minSearchLength?: number;
 }
 
 export const AsyncSelect: React.FC<AsyncSelectProps> = ({
@@ -32,6 +33,7 @@ export const AsyncSelect: React.FC<AsyncSelectProps> = ({
   debounceTime = 300,
   isLoading: externalLoading,
   defaultOptions = [],
+  minSearchLength = 1,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -49,7 +51,7 @@ export const AsyncSelect: React.FC<AsyncSelectProps> = ({
         .then(initialOptions => {
           if (initialOptions.length > 0) {
             setSelectedOption(initialOptions[0]);
-            setOptions(prev => [...initialOptions, ...prev]);
+            setOptions(prev => [...initialOptions, ...prev.filter(opt => opt.value !== initialOptions[0].value)]);
           }
         })
         .catch(error => {
@@ -73,6 +75,50 @@ export const AsyncSelect: React.FC<AsyncSelectProps> = ({
     }
   }, [value, options]);
 
+  // Search function
+  const performSearch = useCallback(async (term: string) => {
+    if (term.length < minSearchLength) {
+      setOptions(defaultOptions);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const results = await onSearch(term);
+      setOptions(results);
+    } catch (error) {
+      console.error('Search error:', error);
+      setOptions([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [onSearch, defaultOptions, minSearchLength]);
+
+  // Debounced search effect
+  useEffect(() => {
+    // Clear previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // Set new timeout for debounced search
+    if (isOpen && searchTerm.trim().length >= minSearchLength) {
+      searchTimeoutRef.current = setTimeout(() => {
+        performSearch(searchTerm.trim());
+      }, debounceTime);
+    } else if (searchTerm.trim().length === 0) {
+      // If search is cleared, show default options
+      setOptions(defaultOptions);
+    }
+
+    // Cleanup
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [searchTerm, isOpen, performSearch, debounceTime, defaultOptions, minSearchLength]);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -86,16 +132,42 @@ export const AsyncSelect: React.FC<AsyncSelectProps> = ({
   }, []);
 
   const handleSelect = (option: Option) => {
+    console.log('✅ Option selected:', option);
+    console.log('✅ Calling onChange with value:', option.value);
+
     setSelectedOption(option);
     onChange?.(option.value);
     setSearchTerm('');
     setIsOpen(false);
+    
+    // Add selected option to options list if not already present
+    if (!options.some(opt => opt.value === option.value)) {
+      setOptions(prev => [option, ...prev]);
+    }
   };
 
   const handleClear = () => {
     setSelectedOption(null);
     onChange?.('');
     setSearchTerm('');
+  };
+
+  const handleInputFocus = () => {
+    setIsOpen(true);
+    // If no search term, show default options
+    if (!searchTerm.trim() && defaultOptions.length > 0) {
+      setOptions(defaultOptions);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setSearchTerm(newValue);
+    
+    // If cleared, show default options
+    if (!newValue.trim()) {
+      setOptions(defaultOptions);
+    }
   };
 
   return (
@@ -107,11 +179,16 @@ export const AsyncSelect: React.FC<AsyncSelectProps> = ({
       <div className="relative">
         {selectedOption ? (
           <div className="flex items-center justify-between p-2 border rounded-md bg-white">
-            <span className="text-sm">{selectedOption.label}</span>
+            <div className="flex flex-col">
+              <span className="text-sm font-medium">{selectedOption.label}</span>
+              {selectedOption.email && (
+                <span className="text-xs text-gray-500">{selectedOption.email}</span>
+              )}
+            </div>
             <button
               type="button"
               onClick={handleClear}
-              className="text-gray-400 hover:text-gray-600 text-sm"
+              className="text-gray-400 hover:text-gray-600 text-sm ml-2"
             >
               ✕
             </button>
@@ -121,11 +198,8 @@ export const AsyncSelect: React.FC<AsyncSelectProps> = ({
             <input
               type="text"
               value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setIsOpen(true);
-              }}
-              onFocus={() => setIsOpen(true)}
+              onChange={handleInputChange}
+              onFocus={handleInputFocus}
               placeholder={placeholder}
               className="w-full p-2 pl-10 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
@@ -136,29 +210,35 @@ export const AsyncSelect: React.FC<AsyncSelectProps> = ({
 
       {isOpen && (
         <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-          {isLoading || externalLoading ? (
+          {(isLoading || externalLoading) && searchTerm.trim().length >= minSearchLength ? (
             <div className="p-4 text-center text-gray-500">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>
               <p className="mt-2">Searching...</p>
             </div>
           ) : options.length > 0 ? (
-            options.map((option) => (
-              <div
-                key={option.value}
-                onClick={() => handleSelect(option)}
-                className={`p-3 hover:bg-gray-100 cursor-pointer ${
-                  selectedOption?.value === option.value ? 'bg-blue-50' : ''
-                }`}
-              >
-                <div className="font-medium">{option.label}</div>
-                {option.email && (
-                  <div className="text-sm text-gray-500">{option.email}</div>
-                )}
-              </div>
-            ))
-          ) : searchTerm.trim() ? (
+            <div className="py-1">
+              {options.map((option) => (
+                <div
+                  key={option.value}
+                  onClick={() => handleSelect(option)}
+                  className={`p-3 hover:bg-gray-100 cursor-pointer ${
+                    selectedOption?.value === option.value ? 'bg-blue-50' : ''
+                  }`}
+                >
+                  <div className="font-medium">{option.label}</div>
+                  {option.email && (
+                    <div className="text-sm text-gray-500">{option.email}</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : searchTerm.trim().length >= minSearchLength ? (
             <div className="p-4 text-center text-gray-500">
-              No users found for "{searchTerm}"
+              No results found for "{searchTerm}"
+            </div>
+          ) : searchTerm.trim().length > 0 && searchTerm.trim().length < minSearchLength ? (
+            <div className="p-4 text-center text-gray-500">
+              Type at least {minSearchLength} character{minSearchLength > 1 ? 's' : ''} to search
             </div>
           ) : null}
         </div>

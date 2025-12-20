@@ -4,6 +4,7 @@ import { Button } from '../shared/components/Button';
 import { NotificationBell } from '../modules/notifications/components/NotificationBell';
 import { useAuth } from '../modules/auth/hooks/useAuth';
 import { Link, useNavigate } from 'react-router-dom';
+import { ProfilePage } from '../modules/users/pages/ProfilePage';
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -19,7 +20,7 @@ export const Header = () => {
         profileDropdownRef.current &&
         !profileDropdownRef.current.contains(event.target as Node)
       ) {
-        setProfileDropdownOpen(false);
+
       }
     };
 
@@ -28,13 +29,11 @@ export const Header = () => {
   }, []);
 
   const handleProfileClick = () => {
-    navigate('/profile');
-    setProfileDropdownOpen(false);
+    navigate('/Profile');
   };
 
   const handleLogout = () => {
     logout();
-    setProfileDropdownOpen(false);
   };
 
   return (
