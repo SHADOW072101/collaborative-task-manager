@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const apiUrl = "https://collaborative-task-manager-sable.vercel.app/api";
+const apiUrl = "https://collaborative-task-manager-81xh.vercel.app/";
 
 export const apiClient = axios.create({
   baseURL: apiUrl,
