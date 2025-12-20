@@ -1,5 +1,5 @@
-// backend/src/api.ts
-import express, { Router } from 'express';
+// backend/src/api.ts - FIXED VERSION
+import { Router } from 'express';
 import { authController } from './modules/controllers/auth.controller';
 import { taskController } from './modules/tasks/task.controller';
 import { authenticate } from './modules/auth/auth.middleware';
@@ -9,40 +9,35 @@ import { notificationController } from './modules/notifications/notification.con
 const router = Router();
 
 // ========== AUTH ROUTES ==========
-router.post('/api/auth/register', authController.register);
-router.post('/api/auth/login', authController.login);
-router.post('/api/auth/logout', authenticate, authController.logout);
-router.post('/api/auth/refresh-token', authController.refreshToken);
-router.get('/api/auth/me', authenticate, authController.getCurrentUser);
-router.put('/api/auth/profile', authenticate, authController.updateProfile);
+// Remove "/api" prefix since it will be added when mounted
+router.post('/auth/register', authController.register);  // ✅ Fixed
+router.post('/auth/login', authController.login);
+router.post('/auth/logout', authenticate, authController.logout);
+router.post('/auth/refresh-token', authController.refreshToken);
+router.get('/auth/me', authenticate, authController.getCurrentUser);
+router.put('/auth/profile', authenticate, authController.updateProfile);
 
 // ========== TASK ROUTES ==========
-// Apply authentication middleware to all task routes
-router.use('/api/tasks', authenticate);
-router.post('/api/tasks', taskController.createTask);
-router.get('/api/tasks', taskController.getTasks);
-router.get('/api/tasks/my', taskController.getMyTasks);
-router.get('/api/tasks/overdue', taskController.getOverdueTasks);
-router.get('/api/tasks/dashboard/stats', taskController.getDashboardStats);
-router.get('/api/tasks/:id', taskController.getTaskById);
-router.put('/api/tasks/:id', taskController.updateTask);
-router.delete('/api/tasks/:id', taskController.deleteTask);
-router.patch('/api/tasks/:id/assign', taskController.assignTask);
-router.patch('/api/tasks/:id/status', taskController.updateTaskStatus);
+router.post('/tasks', authenticate, taskController.createTask);
+router.get('/tasks', authenticate, taskController.getTasks);
+router.get('/tasks/my', authenticate, taskController.getMyTasks);
+router.get('/tasks/overdue', authenticate, taskController.getOverdueTasks);
+router.get('/tasks/dashboard/stats', authenticate, taskController.getDashboardStats);
+router.get('/tasks/:id', authenticate, taskController.getTaskById);
+router.put('/tasks/:id', authenticate, taskController.updateTask);
+router.delete('/tasks/:id', authenticate, taskController.deleteTask);
+router.patch('/tasks/:id/assign', authenticate, taskController.assignTask);
+router.patch('/tasks/:id/status', authenticate, taskController.updateTaskStatus);
 
 // ========== USER ROUTES ==========
-router.use('/api/users', authenticate);
+router.get('/users', authenticate, userController.getUsers);
+router.get('/users/search', authenticate, userController.searchUsers);
+router.get('/users/me/profile', authenticate, userController.getMyProfile);
+router.put('/users/me/profile', authenticate, userController.updateMyProfile);
+router.get('/users/:id', authenticate, userController.getUserById);
 
-router.get('/api/users', userController.getUsers);
-router.get('/api/users/search', userController.searchUsers);
-router.get('/api/users/me/profile', userController.getMyProfile);
-router.put('/api/users/me/profile', userController.updateMyProfile);
-router.get('/api/users/:id', userController.getUserById);
 // ========== NOTIFICATION ROUTES ==========
-router.use('/api/notifications', authenticate);
-
-// router.get('/api/notifications', notificationController.getNotifications);
-router.patch('/api/notifications/:id/read', notificationController.markAsRead);
-router.delete('/api/notifications/:id', notificationController.deleteNotification);
+router.patch('/notifications/:id/read', authenticate, notificationController.markAsRead);
+router.delete('/notifications/:id', authenticate, notificationController.deleteNotification);
 
 export default router;
