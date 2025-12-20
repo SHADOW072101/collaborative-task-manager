@@ -1,18 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { userService } from '../services/userService';
 import { useAuth } from '../../auth/hooks/useAuth';
-import { type UserProfile, type UpdateProfileData, type UpdatePreferencesData, type UpdatePasswordData } from '../types';
+import { type UpdateProfileData, type UpdatePreferencesData, type UpdatePasswordData } from '../types';
 import { apiClient } from '../../../shared/services/apiClient';
 
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatar?: string;
-  jobTitle?: string;
-  department?: string;
-}
+// interface User {
+//   id: string;
+//   name: string;
+//   email: string;
+//   avatar?: string;
+//   jobTitle?: string;
+//   department?: string;
+// }
 
 interface UseUsersOptions {
   search?: string;
@@ -25,7 +25,7 @@ export const useProfile = (userId: string) => {
 
   const { data: profile, isLoading, error, refetch } = useQuery({
     queryKey: ['profile', userId],
-    queryFn: () => userService.getProfile(userId),
+    queryFn: () => userService.getUser(userId),
     enabled: !!userId,
   });
 

@@ -4,7 +4,7 @@ import { Button } from '../shared/components/Button';
 import { NotificationBell } from '../modules/notifications/components/NotificationBell';
 import { useAuth } from '../modules/auth/hooks/useAuth';
 import { Link, useNavigate } from 'react-router-dom';
-import { ProfilePage } from '../modules/users/pages/ProfilePage';
+// import { ProfilePage } from '../modules/users/pages/ProfilePage';
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

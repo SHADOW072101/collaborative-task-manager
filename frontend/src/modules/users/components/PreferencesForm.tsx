@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Button } from '../../../shared/components/Button';
-import { Select } from '../../../shared/components/Select';
+// import { Select } from '../../../shared/components/Select';
 import { Switch } from '../../../shared/components/Switch';
-import { Bell, Mail, Moon, Globe, CheckCircle, XCircle } from 'lucide-react';
+import { Bell, Mail, Moon, Globe, CheckCircle} from 'lucide-react';
 import { type UpdatePreferencesData } from '../types';
 
 interface PreferencesFormProps {
@@ -17,27 +17,27 @@ interface PreferencesFormProps {
   loading?: boolean;
 }
 
-const languages = [
-  { value: 'en', label: 'English' },
-  { value: 'es', label: 'Spanish' },
-  { value: 'fr', label: 'French' },
-  { value: 'de', label: 'German' },
-  { value: 'zh', label: 'Chinese' },
-  { value: 'ja', label: 'Japanese' },
-];
+// const languages = [
+//   { value: 'en', label: 'English' },
+//   { value: 'es', label: 'Spanish' },
+//   { value: 'fr', label: 'French' },
+//   { value: 'de', label: 'German' },
+//   { value: 'zh', label: 'Chinese' },
+//   { value: 'ja', label: 'Japanese' },
+// ];
 
-const timezones = [
-  { value: 'UTC', label: 'UTC' },
-  { value: 'America/New_York', label: 'Eastern Time (ET)' },
-  { value: 'America/Chicago', label: 'Central Time (CT)' },
-  { value: 'America/Denver', label: 'Mountain Time (MT)' },
-  { value: 'America/Los_Angeles', label: 'Pacific Time (PT)' },
-  { value: 'Europe/London', label: 'London (GMT)' },
-  { value: 'Europe/Paris', label: 'Paris (CET)' },
-  { value: 'Asia/Tokyo', label: 'Tokyo (JST)' },
-  { value: 'Asia/Dubai', label: 'Dubai (GST)' },
-  { value: 'Australia/Sydney', label: 'Sydney (AEST)' },
-];
+// const timezones = [
+  // { value: 'UTC', label: 'UTC' },
+//   { value: 'America/New_York', label: 'Eastern Time (ET)' },
+//   { value: 'America/Chicago', label: 'Central Time (CT)' },
+//   { value: 'America/Denver', label: 'Mountain Time (MT)' },
+//   { value: 'America/Los_Angeles', label: 'Pacific Time (PT)' },
+//   { value: 'Europe/London', label: 'London (GMT)' },
+//   { value: 'Europe/Paris', label: 'Paris (CET)' },
+//   { value: 'Asia/Tokyo', label: 'Tokyo (JST)' },
+//   { value: 'Asia/Dubai', label: 'Dubai (GST)' },
+//   { value: 'Australia/Sydney', label: 'Sydney (AEST)' },
+// ];
 
 export const PreferencesForm = ({ 
   initialData, 
@@ -152,21 +152,21 @@ export const PreferencesForm = ({
           Language & Region
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Select
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6"> */}
+          {/* <Select
             label="Language"
             options={languages}
             value={preferences.language}
             onChange={(value) => handleSelectChange('language', value)}
-          />
+          /> */}
           
-          <Select
+          {/* <Select
             label="Timezone"
             options={timezones}
             value={preferences.timezone}
             onChange={(value) => handleSelectChange('timezone', value)}
-          />
-        </div>
+          /> */}
+        {/* </div> */}
       </div>
 
       <div className="flex justify-end pt-4">
