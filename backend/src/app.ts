@@ -73,14 +73,14 @@ app.get('/api/health', (req, res) => {
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // ✅ API Routes - NO DUPLICATES
-app.use('/api/auth', authRoutes);
-app.use('/api/tasks', taskRoutes);
-app.use('/api/users', userRoutes); // ✅ Only once!
+app.use('/auth', authRoutes);
+app.use('/tasks', taskRoutes);
+app.use('/users', userRoutes); // ✅ Only once!
 
-app.use('/api/tasks', taskRoutes);
+app.use('/tasks', taskRoutes);
 
 // Debug: Add a test route
-app.get('/api/test-route', (req, res) => {
+app.get('/test-route', (req, res) => {
   console.log('✅ Test route reached');
   res.json({ success: true, message: 'Test route works' });
 });
