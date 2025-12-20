@@ -81,7 +81,7 @@ export const LoginForm = ({ onSubmit, loading = false }: LoginFormProps) => {
         {loading ? 'Signing in...' : 'Sign In'}
       </Button>
 
-      <div className="relative mt-6">
+      {/* <div className="relative mt-6">
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-white/30"></div>
         </div>
@@ -90,9 +90,9 @@ export const LoginForm = ({ onSubmit, loading = false }: LoginFormProps) => {
             Or continue with
           </span>
         </div>
-      </div>
+      </div> */}
 
-      <div className="grid grid-cols-2 gap-3 mt-6">
+      {/* <div className="grid grid-cols-2 gap-3 mt-6">
         <button
           type="button"
           className="flex items-center justify-center gap-2 p-3 bg-white/40 backdrop-blur-sm border border-white/50 rounded-lg hover:bg-white/60 transition-colors text-sm font-medium text-gray-700"
@@ -111,7 +111,7 @@ export const LoginForm = ({ onSubmit, loading = false }: LoginFormProps) => {
           </svg>
           GitHub
         </button>
-      </div>
+      </div> */}
     </form>
   );
 };
