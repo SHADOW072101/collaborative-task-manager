@@ -1,15 +1,15 @@
 import { apiClient } from '../../../shared/services/apiClient';
 
-interface LoginCredentials {
-  email: string;
-  password: string;
-}
+// interface LoginCredentials {
+//   email: string;
+//   password: string;
+// }
 
-interface RegisterData {
-  name: string;
-  email: string;
-  password: string;
-}
+// interface RegisterData {
+//   name: string;
+//   email: string;
+//   password: string;
+// }
 
 interface User {
   id: string;
@@ -133,6 +133,7 @@ export const authService = {
     try {
       // Use the correct endpoint
       const response = await apiClient.put(`/auth/profile`, data);
+      console.error('updated profile Id :', userId);
       return response.data.data || response.data;
     } catch (error: any) {
       console.error('Update profile error:', error);

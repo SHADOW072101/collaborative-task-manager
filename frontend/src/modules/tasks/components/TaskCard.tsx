@@ -4,17 +4,17 @@ import { Button } from '../../../shared/components/Button';
 import type { Task } from '../types';
 
 const priorityColors = {
-  Low: 'bg-green-100 text-green-800',
-  Medium: 'bg-yellow-100 text-yellow-800',
-  High: 'bg-orange-100 text-orange-800',
-  Urgent: 'bg-red-100 text-red-800',
+  'LOW': 'bg-green-100 text-green-800',
+  'MEDIUM': 'bg-yellow-100 text-yellow-800',
+  'HIGH': 'bg-orange-100 text-orange-800',
+  'URGENT': 'bg-red-100 text-red-800',
 };
 
 const statusColors = {
-  'To Do': 'bg-gray-100 text-gray-800',
-  'In Progress': 'bg-blue-100 text-blue-800',
-  Review: 'bg-purple-100 text-purple-800',
-  Completed: 'bg-green-100 text-green-800',
+  'TODO': 'bg-gray-100 text-gray-800',
+  'IN_PROGRESS': 'bg-blue-100 text-blue-800',
+  'REVIEW': 'bg-purple-100 text-purple-800',
+  'COMPLETED': 'bg-green-100 text-green-800',
 };
 
 interface TaskCardProps {
@@ -33,7 +33,7 @@ export const TaskCard = ({
   currentUserId,
 }: TaskCardProps) => {
   const isAssignedToMe = task.assignedToId === currentUserId;
-  const isOverdue = new Date(task.dueDate) < new Date() && task.status !== 'Completed';
+  const isOverdue = new Date(task.dueDate) < new Date() && task.status !== 'COMPLETED';
 
   return (
     <div className={`bg-white rounded-lg border shadow-sm p-4 hover:shadow-md transition-shadow ${
@@ -87,11 +87,11 @@ export const TaskCard = ({
         </div>
 
         <div className="flex gap-2">
-          {task.status !== 'Completed' && isAssignedToMe && (
+          {task.status !== 'COMPLETED' && isAssignedToMe && (
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onStatusChange(task.id, 'Completed')}
+              onClick={() => onStatusChange(task.id, 'COMPLETED')}
               className="text-green-600 border-green-300 hover:bg-green-50"
             >
               <CheckCircle className="h-4 w-4 mr-1" />

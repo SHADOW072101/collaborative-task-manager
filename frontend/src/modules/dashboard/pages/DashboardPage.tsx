@@ -5,7 +5,7 @@ import { TaskOverview } from '../components/TaskOverview';
 import { TaskListSkeleton } from '../../tasks/components/TaskListSkeleton';
 import { useTasks } from '../../tasks/hooks/useTasks';
 import { useAuth } from '../../auth/hooks/useAuth';
-import { useUsers } from '../../users/hooks/useUsers';
+// import { useUsers } from '../../users/hooks/useUsers';
 import { useTaskMutations } from '../../tasks/hooks/useTaskMutations';
 import { Plus, Calendar, CheckCircle, Clock } from 'lucide-react';
 import { Modal } from '../../../shared/components/Modal';
@@ -26,18 +26,18 @@ interface Task {
   updatedAt: string;
 }
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatar?: string;
-  jobTitle?: string;
-  department?: string;
-}
+// interface User {
+//   id: string;
+//   name: string;
+//   email: string;
+//   avatar?: string;
+//   jobTitle?: string;
+//   department?: string;
+// }
 
 export const DashboardPage = () => {
   const { user } = useAuth();
-  const { users } = useUsers();
+  // const { users } = useUsers();
   const [showCreateModal, setShowCreateModal] = useState(false);
   
   // Fetch all tasks for the current user
@@ -54,7 +54,7 @@ export const DashboardPage = () => {
   };
 
   // Ensure users is always an array
-  const safeUsers = Array.isArray(users) ? users : [];
+  // const safeUsers = Array.isArray(users) ? users : [];
   
   // Dynamic calculations with proper typing
   const assignedTasks = tasks.filter((task: Task) => task.assignedToId === user?.id);
