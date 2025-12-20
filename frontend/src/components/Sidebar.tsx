@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, CheckSquare, Users, BarChart3, Settings } from 'lucide-react';
+import { Home, CheckSquare, Users,Settings } from 'lucide-react';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
