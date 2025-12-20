@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { env } from '../../core/config/env';
+import prisma from '../../lib/prisma'
 
 // const prisma = new PrismaClient();
 
@@ -21,17 +22,6 @@ import { env } from '../../core/config/env';
 // }
 
 
-
-// src/lib/prisma.ts
-
-
-export const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL
-    }
-  }
-})
 
 
 

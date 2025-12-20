@@ -1,9 +1,7 @@
+// src/lib/prisma.ts
 import { PrismaClient } from '@prisma/client'
 
-export const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL
-    }
-  }
-})
+// NO CONFIGURATION - Prisma reads DATABASE_URL from env automatically
+const prisma = new PrismaClient()
+
+export default prisma
