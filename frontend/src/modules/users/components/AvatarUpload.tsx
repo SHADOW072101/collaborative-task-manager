@@ -8,8 +8,7 @@ interface AvatarUploadProps {
   isUploading?: boolean;
 }
 
-export const AvatarUpload = ({ 
-  currentAvatar, 
+export const AvatarUpload = ({  
   onUpload, 
   isUploading = false 
 }: AvatarUploadProps) => {
@@ -64,7 +63,7 @@ export const AvatarUpload = ({
       <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
         {/* Current Avatar */}
         <div className="relative">
-          <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center">
+          {/* <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center">
             {currentAvatar ? (
               <img
                 src={currentAvatar}
@@ -76,7 +75,7 @@ export const AvatarUpload = ({
                 {currentAvatar ? '' : '👤'}
               </div>
             )}
-          </div>
+          </div> */}
           
           {/* Upload Button */}
           <button

@@ -53,7 +53,7 @@ export const useProfile = (userId: string) => {
 
   const uploadAvatar = useMutation({
     mutationFn: (file: File) => userService.uploadAvatar(userId, file),
-    onSuccess: (result) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile', userId] });
     },
   });

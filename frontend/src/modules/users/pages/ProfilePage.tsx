@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import {  User,   Settings,  Shield,  Bell,  Calendar,  Activity,  Mail,  Phone,  MapPin,  Globe,  ExternalLink} from 'lucide-react';
+import {  User,   Settings,  Shield,  Activity} from 'lucide-react';
 // import { Button } from '../../../shared/components/Button';
 // import { AvatarUpload } from '../components/AvatarUpload';
-import { ProfileForm } from '../components/ProfileForm';
+// import { ProfileForm } from '../components/ProfileForm';
 // import { PreferencesForm } from '../components/PreferencesForm';
-import { SecuritySettings } from '../components/SecuritySettings';
+// import { SecuritySettings } from '../components/SecuritySettings';
 import { useCurrentProfile } from '../hooks/useUsers';
 
 const tabs = [
@@ -17,16 +17,16 @@ const tabs = [
 export const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const { 
-    profile, 
+    // profile, 
     isLoading, 
-    updateProfile, 
+    // updateProfile, 
     // updatePreferences,
-    changePassword,
+    // changePassword,
     // uploadAvatar,
-    toggleTwoFactor,
-    sendVerificationEmail,
+    // toggleTwoFactor,
+    // sendVerificationEmail,
     activityLogs,
-    isUpdatingProfile,
+    // isUpdatingProfile,
     // isUploadingAvatar,
   } = useCurrentProfile();
 
@@ -57,16 +57,7 @@ export const ProfilePage = () => {
               />
             </div> */}
 
-            <div className="bg-white border rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">
-                Personal Information
-              </h3>
-              <ProfileForm
-                initialData={profile}
-                onSubmit={updateProfile}
-                loading={isUpdatingProfile}
-              />
-            </div>
+        
           </div>
         );
 
@@ -81,17 +72,6 @@ export const ProfilePage = () => {
       //     </div>
       //   );
 
-      case 'security':
-        return (
-          <SecuritySettings
-            emailVerified={profile?.settings?.emailVerified}
-            twoFactorEnabled={profile?.settings?.twoFactorEnabled}
-            onChangePassword={changePassword}
-            onToggleTwoFactor={toggleTwoFactor}
-            onSendVerificationEmail={sendVerificationEmail}
-            loading={isUpdatingProfile}
-          />
-        );
 
       case 'activity':
         return (
@@ -139,33 +119,7 @@ export const ProfilePage = () => {
         {/* Sidebar */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
-            {/* Profile Header */}
-            <div className="p-6 bg-gradient-to-r from-blue-500 to-indigo-600">
-              <div className="flex flex-col items-center text-center text-white">
-                <div className="w-24 h-24 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4">
-                  {profile?.avatar ? (
-                    <img
-                      src={profile.avatar}
-                      alt={profile.name}
-                      className="w-20 h-20 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="text-3xl font-bold">
-                      {profile?.name?.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                </div>
-                <h2 className="text-xl font-bold">{profile?.name}</h2>
-                <p className="text-blue-100 text-sm mt-1">{profile?.email}</p>
-                
-                {profile?.jobTitle && (
-                  <p className="text-blue-100 text-sm mt-2">
-                    {profile.jobTitle}
-                    {profile.company && ` at ${profile.company}`}
-                  </p>
-                )}
-              </div>
-            </div>
+          
 
             {/* Stats */}
             <div className="grid grid-cols-2 gap-4 p-6 border-b">
@@ -179,43 +133,7 @@ export const ProfilePage = () => {
               </div>
             </div>
 
-            {/* Info */}
-            <div className="p-6 space-y-4">
-              {profile?.location && (
-                <div className="flex items-center gap-3 text-sm">
-                  <MapPin className="h-4 w-4 text-gray-400" />
-                  <span className="text-gray-600">{profile.location}</span>
-                </div>
-              )}
-              
-              {profile?.phone && (
-                <div className="flex items-center gap-3 text-sm">
-                  <Phone className="h-4 w-4 text-gray-400" />
-                  <span className="text-gray-600">{profile.phone}</span>
-                </div>
-              )}
-              
-              {profile?.website && (
-                <div className="flex items-center gap-3 text-sm">
-                  <Globe className="h-4 w-4 text-gray-400" />
-                  <a 
-                    href={profile.website} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-700 flex items-center gap-1"
-                  >
-                    Website
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                </div>
-              )}
-              
-              <div className="flex items-center gap-3 text-sm">
-                <Calendar className="h-4 w-4 text-gray-400" />
-                <span className="text-gray-600">
-                  Joined {profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString() : 'N/A'}
-                </span>
-              </div>
+      
             </div>
           </div>
         </div>
@@ -255,6 +173,5 @@ export const ProfilePage = () => {
           <ActiveTabContent />
         </div>
       </div>
-    </div>
   );
 };

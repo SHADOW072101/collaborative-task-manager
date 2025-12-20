@@ -9,8 +9,6 @@ import {
   Lock, 
   Mail, 
   AlertTriangle,
-  CheckCircle,
-  XCircle 
 } from 'lucide-react';
 
 const passwordSchema = z.object({
