@@ -73,6 +73,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/users', userRoutes); // ✅ Only once!
 
+app.use('/api/tasks', taskRoutes);
+
 // Debug: Add a test route
 app.get('/api/test-route', (req, res) => {
   console.log('✅ Test route reached');

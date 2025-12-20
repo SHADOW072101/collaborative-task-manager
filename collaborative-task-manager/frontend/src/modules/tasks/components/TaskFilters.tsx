@@ -61,25 +61,26 @@ export const TaskFilters = ({
           />
         </div>
 
+        {/* FIXED: Pass value directly, not event object */}
         <Select
           label="Status"
           options={statusOptions}
           value={statusFilter}
-          onChange={(e) => onStatusFilterChange(e.target.value)}
+          onChange={onStatusFilterChange} // Just the function, not wrapper
         />
 
         <Select
           label="Priority"
           options={priorityOptions}
           value={priorityFilter}
-          onChange={(e) => onPriorityFilterChange(e.target.value)}
+          onChange={onPriorityFilterChange} // Just the function, not wrapper
         />
 
         <Select
           label="Sort By"
           options={sortOptions}
           value={sortBy}
-          onChange={(e) => onSortChange(e.target.value)}
+          onChange={onSortChange} // Just the function, not wrapper
         />
       </div>
 

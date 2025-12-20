@@ -36,6 +36,11 @@ router.get('/:id', taskController.getTaskById);
 router.put('/:id', taskController.updateTask);
 router.delete('/:id', taskController.deleteTask);
 
+router.get('/', taskController.getTasks);
+router.get('/dashboard/stats', taskController.getDashboardStats);
+router.get('/my-tasks', taskController.getMyTasks);
+router.get('/overdue', taskController.getOverdueTasks);
+
 // Task-specific operations
 router.patch('/:id/assign', taskController.assignTask);
 router.patch('/:id/status', taskController.updateTaskStatus);

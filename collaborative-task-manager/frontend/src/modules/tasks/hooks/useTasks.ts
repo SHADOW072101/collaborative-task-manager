@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { taskService } from '../services/taskService';
 import { type Task } from '../types';
+import { useAuth } from '../../auth/hooks/useAuth';
 
 interface UseTasksOptions {
   view?: 'all' | 'my' | 'assigned';
@@ -8,138 +9,121 @@ interface UseTasksOptions {
   status?: string;
   priority?: string;
   sortBy?: string;
-  assignedTo?: string; 
-  createdBy?: string;
 }
 
 export const useTasks = (options: UseTasksOptions = {}) => {
+  const { user } = useAuth();
   const {
-    view = 'all',
+    view = 'my', // Changed default from 'all' to 'my'
     search = '',
     status,
     priority,
     sortBy = 'dueDate-asc',
-    assignedTo, 
-    createdBy,
   } = options;
 
-  const queryKey = ['tasks', { view, search, status, priority, sortBy, assignedTo, createdBy }];
+  const queryKey = ['tasks', { 
+    userId: user?.id, 
+    view, 
+    search, 
+    status, 
+    priority, 
+    sortBy 
+  }];
 
   const { data, isLoading, error, refetch } = useQuery<Task[], Error>({
     queryKey,
     queryFn: async () => {
       try {
-        console.log('🔍 Fetching tasks with options:', options);
-        
-        // Get ALL tasks first
-        let tasks = await taskService.getAll();
-        
-        if (!Array.isArray(tasks)) {
-          console.error('❌ tasks is not an array:', tasks);
+        if (!user?.id) {
+          console.log('❌ No user ID available');
           return [];
         }
-        
-        console.log('📦 Raw tasks from API:', tasks.length);
-        
-        // Apply view-based filtering
-        if (view === 'my' && assignedTo) {
-          // Show tasks assigned to current user
-          tasks = tasks.filter(task => task.assignedToId === assignedTo);
-        } else if (view === 'assigned' && createdBy) {
-          // Show tasks created by current user
-          tasks = tasks.filter(task => task.createdById === createdBy);
-        }
-        // 'all' view shows all tasks
-        
-        // Apply search filter
-        if (search) {
-          const searchLower = search.toLowerCase();
-          tasks = tasks.filter(task => 
-            task.title.toLowerCase().includes(searchLower) ||
-            task.description?.toLowerCase().includes(searchLower)
-          );
-        }
-        
-        // Apply status filter
-        if (status) {
-          tasks = tasks.filter(task => task.status === status);
-        }
-        
-        // Apply priority filter
-        if (priority) {
-          tasks = tasks.filter(task => task.priority === priority);
-        }
-        
-        // Apply sorting
-        if (sortBy) {
-          const [field, direction] = sortBy.split('-');
-          
-          tasks.sort((a, b) => {
-          let aValue = a[field as keyof Task];
-          let bValue = b[field as keyof Task];
-          
-          // Handle null/undefined values - treat them as empty strings
-          if (aValue == null) aValue = '';
-          if (bValue == null) bValue = '';
-          
-          // Handle dates
-          if (field === 'dueDate' || field === 'createdAt' || field === 'updatedAt') {
-            try {
-              const aDate = new Date(aValue as string).getTime();
-              const bDate = new Date(bValue as string).getTime();
-              
-              // Handle invalid dates
-              if (isNaN(aDate) && isNaN(bDate)) return 0;
-              if (isNaN(aDate)) return direction === 'asc' ? 1 : -1;
-              if (isNaN(bDate)) return direction === 'asc' ? -1 : 1;
-              
-              return direction === 'asc' ? aDate - bDate : bDate - aDate;
-            } catch {
-              // If date parsing fails, fall back to string comparison
-              const aStr = String(aValue);
-              const bStr = String(bValue);
-              return direction === 'asc' 
-                ? aStr.localeCompare(bStr)
-                : bStr.localeCompare(aStr);
-            }
-          }
-          
-          // Handle strings
-          if (typeof aValue === 'string' && typeof bValue === 'string') {
-            return direction === 'asc' 
-              ? aValue.localeCompare(bValue)
-              : bValue.localeCompare(aValue);
-          }
-          
-          // Handle numbers
-          if (typeof aValue === 'number' && typeof bValue === 'number') {
-            return direction === 'asc' ? aValue - bValue : bValue - aValue;
-          }
-          
-          // Default comparison with null safety
-          const aStr = String(aValue);
-          const bStr = String(bValue);
-          
-          return direction === 'asc' 
-            ? aStr.localeCompare(bStr)
-            : bStr.localeCompare(aStr);
+
+        console.log('🔍 Fetching tasks with:', { 
+          userId: user.id, 
+          view, 
+          search, 
+          status, 
+          priority, 
+          sortBy 
         });
-      }
+
+        // Build query parameters for backend
+        const params: Record<string, string> = {};
         
-        console.log('✅ Filtered tasks:', tasks.length);
+        // ALWAYS send the view parameter
+        params.view = view;
+        
+        if (search) params.search = search;
+        if (status) params.status = status;
+        if (priority) params.priority = priority;
+        if (sortBy) params.sortBy = sortBy;
+        
+        // For 'assigned' view, tell backend to filter by assignedTo
+        if (view === 'assigned') {
+          params.assignedTo = user.id;
+        }
+        // For 'my' view, backend handles it (creator OR assignee)
+        // For 'all' view, backend handles it
+
+        // Make API call with proper parameters
+        const response = await taskService.getTasks(params);
+        
+        // Handle different response formats
+        let tasks: Task[] = [];
+        
+        if (Array.isArray(response)) {
+          tasks = response;
+        } else if (response?.data && Array.isArray(response.data)) {
+          tasks = response.data;
+        } else if (response?.success && Array.isArray(response.data)) {
+          tasks = response.data;
+        } else {
+          console.warn('⚠️ Unexpected response format:', response);
+          tasks = [];
+        }
+
+        console.log('📦 Tasks received:', {
+          total: tasks.length,
+          createdByMe: tasks.filter(t => t.createdById === user.id).length,
+          assignedToMe: tasks.filter(t => t.assignedToId === user.id).length,
+          view,
+        });
+
+        // Debug: Show each task's ownership
+        tasks.forEach(task => {
+          console.log(`📝 Task: ${task.title}`, {
+            createdById: task.createdById,
+            assignedToId: task.assignedToId,
+            isCreatedByMe: task.createdById === user.id,
+            isAssignedToMe: task.assignedToId === user.id,
+          });
+        });
+
         return tasks;
         
-      } catch (err) {
+      } catch (err: any) {
         console.error('❌ Error fetching tasks:', err);
-        throw err;
+        
+        // Provide more specific error message
+        if (err.response?.status === 401) {
+          throw new Error('Authentication required. Please log in again.');
+        } else if (err.response?.status === 404) {
+          throw new Error('Tasks endpoint not found. Check backend routes.');
+        } else if (err.message) {
+          throw new Error(`Failed to fetch tasks: ${err.message}`);
+        } else {
+          throw new Error('Failed to fetch tasks. Please try again.');
+        }
       }
     },
     staleTime: 1000 * 60, // 1 minute
     refetchOnWindowFocus: false,
+    enabled: !!user?.id, // Only run query if user is authenticated
   });
   
   return {
-    tasks: data || [], // Always return an array
+    tasks: data || [],
     loading: isLoading,
     error,
     refetch,
