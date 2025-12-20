@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt, {SignOptions} from 'jsonwebtoken';
 import { env } from '../../core/config/env';
-import prisma from '../../core/database/prisma';
+import prisma from '../../lib/prisma'
 import { RegisterDto, LoginDto, UpdateProfileDto } from './auth.dto';
 import { AuthResponse, UserPayload } from './auth.types';
 import ms from 'ms';
