@@ -32,7 +32,7 @@ export const authService = {
     console.log('🔐 authService.login called for:', email);
     
     try {
-      const response = await apiClient.post<AuthResponse>('/api/auth/login', { email, password });
+      const response = await apiClient.post<AuthResponse>('/auth/login', { email, password });
       
       console.log('✅ Login response received:', {
         success: response.data.success,
@@ -73,7 +73,7 @@ export const authService = {
     console.log('📝 authService.register called for:', email);
     
     try {
-      const response = await apiClient.post<AuthResponse>('/api/auth/register', {
+      const response = await apiClient.post<AuthResponse>('/auth/register', {
         name,
         email,
         password,
@@ -109,7 +109,7 @@ export const authService = {
     
     try {
       // Use the correct endpoint from your backend
-      const response = await apiClient.get('/api/auth/profile');
+      const response = await apiClient.get('/auth/profile');
       
       console.log('✅ Current user response:', response.data);
       
@@ -132,7 +132,7 @@ export const authService = {
   async updateProfile(userId: string, data: Partial<User>): Promise<User> {
     try {
       // Use the correct endpoint
-      const response = await apiClient.put(`/api/auth/profile`, data);
+      const response = await apiClient.put(`auth/profile`, data);
       console.error('updated profile Id :', userId);
       return response.data.data || response.data;
     } catch (error: any) {
