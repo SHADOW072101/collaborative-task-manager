@@ -22,9 +22,18 @@ import { env } from '../../core/config/env';
 
 
 
-const prisma = new PrismaClient({
-  datasourceUrl: process.env.DATABASE_URL  
+// src/lib/prisma.ts
+
+
+export const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL
+    }
+  }
 })
+
+
 
 export class AuthController {
   // Register user

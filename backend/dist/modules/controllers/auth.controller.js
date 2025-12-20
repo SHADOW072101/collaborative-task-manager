@@ -8,7 +8,7 @@ const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const client_1 = require("@prisma/client");
 const env_1 = require("../../core/config/env");
-const prisma = new client_1.PrismaClient();
+// const prisma = new PrismaClient();
 // declare global {
 //   namespace Express {
 //     interface Request {
@@ -22,6 +22,9 @@ const prisma = new client_1.PrismaClient();
 //     }
 //   }
 // }
+const prisma = new client_1.PrismaClient({
+    datasourceUrl: process.env.DATABASE_URL
+});
 class AuthController {
     // Register user
     async register(req, res) {

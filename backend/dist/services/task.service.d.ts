@@ -1,4 +1,4 @@
-import { Priority, Status } from '@prisma/client';
+import { Prisma, Priority, Status } from '@prisma/client';
 export interface CreateTaskData {
     title: string;
     description?: string;
@@ -26,274 +26,24 @@ export interface TaskFilters {
     sortBy?: 'dueDate-asc' | 'dueDate-desc' | 'priority-asc' | 'priority-desc' | 'createdAt-desc';
 }
 export declare class TaskService {
-    createTask(data: CreateTaskData): Promise<{
-        creator: {
-            name: string;
-            email: string;
-            id: string;
-        };
-        assignedTo: {
-            name: string;
-            email: string;
-            id: string;
-        } | null;
-    } & {
-        status: import(".prisma/client").$Enums.Status;
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        title: string;
-        description: string | null;
-        dueDate: Date | null;
-        startDate: Date | null;
-        completedAt: Date | null;
-        priority: import(".prisma/client").$Enums.Priority;
-        estimatedTime: number | null;
-        actualTime: number | null;
-        order: number;
-        projectId: string | null;
-        creatorId: string;
-        assignedToId: string | null;
-        parentTaskId: string | null;
-    }>;
-    getTasks(filters: TaskFilters, userId: string): Promise<({
-        creator: {
-            name: string;
-            email: string;
-            id: string;
-        };
-        assignedTo: {
-            name: string;
-            email: string;
-            id: string;
-        } | null;
-    } & {
-        status: import(".prisma/client").$Enums.Status;
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        title: string;
-        description: string | null;
-        dueDate: Date | null;
-        startDate: Date | null;
-        completedAt: Date | null;
-        priority: import(".prisma/client").$Enums.Priority;
-        estimatedTime: number | null;
-        actualTime: number | null;
-        order: number;
-        projectId: string | null;
-        creatorId: string;
-        assignedToId: string | null;
-        parentTaskId: string | null;
-    })[]>;
-    getTaskById(id: string): Promise<({
-        creator: {
-            name: string;
-            email: string;
-            id: string;
-        };
-        assignedTo: {
-            name: string;
-            email: string;
-            id: string;
-        } | null;
-    } & {
-        status: import(".prisma/client").$Enums.Status;
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        title: string;
-        description: string | null;
-        dueDate: Date | null;
-        startDate: Date | null;
-        completedAt: Date | null;
-        priority: import(".prisma/client").$Enums.Priority;
-        estimatedTime: number | null;
-        actualTime: number | null;
-        order: number;
-        projectId: string | null;
-        creatorId: string;
-        assignedToId: string | null;
-        parentTaskId: string | null;
-    }) | null>;
-    updateTask(id: string, data: UpdateTaskData): Promise<{
-        creator: {
-            name: string;
-            email: string;
-            id: string;
-        };
-        assignedTo: {
-            name: string;
-            email: string;
-            id: string;
-        } | null;
-    } & {
-        status: import(".prisma/client").$Enums.Status;
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        title: string;
-        description: string | null;
-        dueDate: Date | null;
-        startDate: Date | null;
-        completedAt: Date | null;
-        priority: import(".prisma/client").$Enums.Priority;
-        estimatedTime: number | null;
-        actualTime: number | null;
-        order: number;
-        projectId: string | null;
-        creatorId: string;
-        assignedToId: string | null;
-        parentTaskId: string | null;
-    }>;
-    deleteTask(id: string): Promise<{
-        status: import(".prisma/client").$Enums.Status;
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        title: string;
-        description: string | null;
-        dueDate: Date | null;
-        startDate: Date | null;
-        completedAt: Date | null;
-        priority: import(".prisma/client").$Enums.Priority;
-        estimatedTime: number | null;
-        actualTime: number | null;
-        order: number;
-        projectId: string | null;
-        creatorId: string;
-        assignedToId: string | null;
-        parentTaskId: string | null;
-    }>;
-    assignTask(taskId: string, userId: string): Promise<{
-        creator: {
-            name: string;
-            email: string;
-            id: string;
-        };
-        assignedTo: {
-            name: string;
-            email: string;
-            id: string;
-        } | null;
-    } & {
-        status: import(".prisma/client").$Enums.Status;
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        title: string;
-        description: string | null;
-        dueDate: Date | null;
-        startDate: Date | null;
-        completedAt: Date | null;
-        priority: import(".prisma/client").$Enums.Priority;
-        estimatedTime: number | null;
-        actualTime: number | null;
-        order: number;
-        projectId: string | null;
-        creatorId: string;
-        assignedToId: string | null;
-        parentTaskId: string | null;
-    }>;
-    updateTaskStatus(taskId: string, status: Status): Promise<{
-        creator: {
-            name: string;
-            email: string;
-            id: string;
-        };
-        assignedTo: {
-            name: string;
-            email: string;
-            id: string;
-        } | null;
-    } & {
-        status: import(".prisma/client").$Enums.Status;
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        title: string;
-        description: string | null;
-        dueDate: Date | null;
-        startDate: Date | null;
-        completedAt: Date | null;
-        priority: import(".prisma/client").$Enums.Priority;
-        estimatedTime: number | null;
-        actualTime: number | null;
-        order: number;
-        projectId: string | null;
-        creatorId: string;
-        assignedToId: string | null;
-        parentTaskId: string | null;
-    }>;
+    createTask(data: CreateTaskData): Promise<$Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "create">>;
+    getTasks(filters: TaskFilters, userId: string): Promise<$Public.PrismaPromise<T>>;
+    getTaskById(id: string): Promise<any>;
+    updateTask(id: string, data: UpdateTaskData): Promise<$Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "update">>;
+    deleteTask(id: string): Promise<$Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "delete">>;
+    assignTask(taskId: string, userId: string): Promise<$Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "update">>;
+    updateTaskStatus(taskId: string, status: Status): Promise<$Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "update">>;
     getDashboardStats(userId: string): Promise<{
-        assignedTasks: number;
-        createdTasks: number;
-        overdueTasks: number;
-        completedTasks: number;
-        tasksCompletedToday: number;
-        tasksCreatedThisWeek: number;
-        tasksDueTomorrow: number;
+        assignedTasks: any;
+        createdTasks: any;
+        overdueTasks: any;
+        completedTasks: any;
+        tasksCompletedToday: any;
+        tasksCreatedThisWeek: any;
+        tasksDueTomorrow: any;
     }>;
-    getMyTasks(userId: string): Promise<({
-        creator: {
-            name: string;
-            email: string;
-            id: string;
-        };
-        assignedTo: {
-            name: string;
-            email: string;
-            id: string;
-        } | null;
-    } & {
-        status: import(".prisma/client").$Enums.Status;
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        title: string;
-        description: string | null;
-        dueDate: Date | null;
-        startDate: Date | null;
-        completedAt: Date | null;
-        priority: import(".prisma/client").$Enums.Priority;
-        estimatedTime: number | null;
-        actualTime: number | null;
-        order: number;
-        projectId: string | null;
-        creatorId: string;
-        assignedToId: string | null;
-        parentTaskId: string | null;
-    })[]>;
-    getOverdueTasks(userId: string): Promise<({
-        creator: {
-            name: string;
-            email: string;
-            id: string;
-        };
-        assignedTo: {
-            name: string;
-            email: string;
-            id: string;
-        } | null;
-    } & {
-        status: import(".prisma/client").$Enums.Status;
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        title: string;
-        description: string | null;
-        dueDate: Date | null;
-        startDate: Date | null;
-        completedAt: Date | null;
-        priority: import(".prisma/client").$Enums.Priority;
-        estimatedTime: number | null;
-        actualTime: number | null;
-        order: number;
-        projectId: string | null;
-        creatorId: string;
-        assignedToId: string | null;
-        parentTaskId: string | null;
-    })[]>;
+    getMyTasks(userId: string): Promise<$Public.PrismaPromise<T>>;
+    getOverdueTasks(userId: string): Promise<$Public.PrismaPromise<T>>;
 }
 export declare const taskService: TaskService;
 //# sourceMappingURL=task.service.d.ts.map

@@ -3,20 +3,8 @@ import { AuthResponse, UserPayload } from './auth.types';
 export declare class AuthService {
     register(data: RegisterDto): Promise<AuthResponse>;
     login(data: LoginDto): Promise<AuthResponse>;
-    getCurrentUser(userId: string): Promise<{
-        name: string;
-        email: string;
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-    }>;
-    updateProfile(userId: string, data: UpdateProfileDto): Promise<{
-        name: string;
-        email: string;
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-    }>;
+    getCurrentUser(userId: string): Promise<any>;
+    updateProfile(userId: string, data: UpdateProfileDto): Promise<$Result.GetResult<import(".prisma/client").Prisma.$UserPayload<ExtArgs>, T, "update">>;
     private generateToken;
     verifyToken(token: string): UserPayload;
 }
