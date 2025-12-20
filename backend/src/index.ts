@@ -10,7 +10,7 @@ dotenv.config();
 const app = express();
 
 // Basic health check - NO Socket.io, NO server.listen()
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
   res.json({ 
     message: 'Task Manager API',
     version: '1.0.0',

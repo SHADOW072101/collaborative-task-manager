@@ -9,42 +9,40 @@ import { notificationController } from './modules/notifications/notification.con
 const router = Router();
 
 // ========== AUTH ROUTES ==========
-router.post('/auth/register', authController.register);
-router.post('/auth/login', authController.login);
-router.post('/auth/logout', authenticate, authController.logout);
-router.post('/auth/refresh-token', authController.refreshToken);
-router.get('/auth/me', authenticate, authController.getCurrentUser);
-router.put('/auth/profile', authenticate, authController.updateProfile);
+router.post('/api/auth/register', authController.register);
+router.post('/api/auth/login', authController.login);
+router.post('/api/auth/logout', authenticate, authController.logout);
+router.post('/api/auth/refresh-token', authController.refreshToken);
+router.get('/api/auth/me', authenticate, authController.getCurrentUser);
+router.put('/api/auth/profile', authenticate, authController.updateProfile);
 
 // ========== TASK ROUTES ==========
 // Apply authentication middleware to all task routes
-router.use('/tasks', authenticate);
-
-router.post('/tasks', taskController.createTask);
-router.get('/tasks', taskController.getTasks);
-router.get('/tasks/my', taskController.getMyTasks);
-router.get('/tasks/overdue', taskController.getOverdueTasks);
-router.get('/tasks/dashboard/stats', taskController.getDashboardStats);
-router.get('/tasks/:id', taskController.getTaskById);
-router.put('/tasks/:id', taskController.updateTask);
-router.delete('/tasks/:id', taskController.deleteTask);
-router.patch('/tasks/:id/assign', taskController.assignTask);
-router.patch('/tasks/:id/status', taskController.updateTaskStatus);
+router.use('/api/tasks', authenticate);
+router.post('/api/tasks', taskController.createTask);
+router.get('/api/tasks', taskController.getTasks);
+router.get('/api/tasks/my', taskController.getMyTasks);
+router.get('/api/tasks/overdue', taskController.getOverdueTasks);
+router.get('/api/tasks/dashboard/stats', taskController.getDashboardStats);
+router.get('/api/tasks/:id', taskController.getTaskById);
+router.put('/api/tasks/:id', taskController.updateTask);
+router.delete('/api/tasks/:id', taskController.deleteTask);
+router.patch('/api/tasks/:id/assign', taskController.assignTask);
+router.patch('/api/tasks/:id/status', taskController.updateTaskStatus);
 
 // ========== USER ROUTES ==========
-router.use('/users', authenticate);
+router.use('/api/users', authenticate);
 
-router.get('/users', userController.getUsers);
-router.get('/users/search', userController.searchUsers);
-router.get('/users/me/profile', userController.getMyProfile);
-router.put('/users/me/profile', userController.updateMyProfile);
-router.get('/users/:id', userController.getUserById);
-
+router.get('/api/users', userController.getUsers);
+router.get('/api/users/search', userController.searchUsers);
+router.get('/api/users/me/profile', userController.getMyProfile);
+router.put('/api/users/me/profile', userController.updateMyProfile);
+router.get('/api/users/:id', userController.getUserById);
 // ========== NOTIFICATION ROUTES ==========
-router.use('/notifications', authenticate);
+router.use('/api/notifications', authenticate);
 
-// router.get('/notifications', notificationController.getNotifications);
-router.patch('/notifications/:id/read', notificationController.markAsRead);
-router.delete('/notifications/:id', notificationController.deleteNotification);
+// router.get('/api/notifications', notificationController.getNotifications);
+router.patch('/api/notifications/:id/read', notificationController.markAsRead);
+router.delete('/api/notifications/:id', notificationController.deleteNotification);
 
 export default router;
