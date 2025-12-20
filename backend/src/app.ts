@@ -42,7 +42,10 @@ app.use((req, res, next) => {
 app.use(helmet());
 
 app.use(cors({
-  origin: env.FRONTEND_URL, 
+  origin: [env.FRONTEND_URL,
+    'https://your-frontend-domain.vercel.app',
+    /\.vercel\.app$/
+  ], 
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
@@ -53,7 +56,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.options('*', cors({
-  origin: env.FRONTEND_URL,
+  origin:[env.FRONTEND_URL,
+    'https://your-frontend-domain.vercel.app',
+    /\.vercel\.app$/
+  ], 
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
