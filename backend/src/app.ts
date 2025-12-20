@@ -6,7 +6,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import path from 'path'; // ✅ Changed from path/win32 to path
+import path from 'path'; 
 
 import { env } from './core/config/env';
 import { errorHandler } from './core/middleware/errorHandler';
@@ -43,8 +43,7 @@ app.use(helmet());
 
 app.use(cors({
   origin: [env.FRONTEND_URL,
-    'https://collaborative-task-manager-81xh.vercel.app/',
-    /\.vercel\.app$/
+    'https://collaborative-task-manager-81xh.vercel.app/'
   ], 
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -57,8 +56,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.options('*', cors({
   origin:[env.FRONTEND_URL,
-    'https://collaborative-task-manager-81xh.vercel.app/',
-    /\.vercel\.app$/
+    'https://collaborative-task-manager-81xh.vercel.app/'
   ], 
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -66,7 +64,7 @@ app.options('*', cors({
 }));
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
   console.log('✅ Health check called');
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });

@@ -21,6 +21,19 @@ const io = new Server(httpServer, {
   }
 });
 
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Task Manager API',
+    version: '1.0.0',
+    endpoints: {
+      root: '/',
+      health: ['/health', '/api/health'],
+      api: '/api/*',
+      uploads: '/uploads/*'
+    }
+  });
+});
+
 // Middleware
 app.use(cors({
   origin: process.env.FRONTEND_URL || "http://localhost:5173",
@@ -32,7 +45,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Health check route
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
   console.log('✅ Health check called');
   res.json({ 
     status: 'OK', 

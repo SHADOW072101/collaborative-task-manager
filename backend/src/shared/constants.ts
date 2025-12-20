@@ -2,31 +2,31 @@
 
 // Task constants
 export const TASK_STATUS = {
-  TODO: 'ToDo',
-  IN_PROGRESS: 'InProgress',
-  REVIEW: 'Review',
-  COMPLETED: 'Completed',
+  TODO: 'TODO',
+  IN_PROGRESS: 'INPROGRESS',
+  REVIEW: 'REVIEW',
+  COMPLETED: 'COMPLETED',
 } as const;
 
 export type TaskStatus = typeof TASK_STATUS[keyof typeof TASK_STATUS];
 
 export const TASK_PRIORITY = {
-  LOW: 'Low',
-  MEDIUM: 'Medium',
-  HIGH: 'High',
-  URGENT: 'Urgent',
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+  URGENT: 'URGENT',
 } as const;
 
 export type TaskPriority = typeof TASK_PRIORITY[keyof typeof TASK_PRIORITY];
 
 // Notification types
 export const NOTIFICATION_TYPES = {
-  TASK_ASSIGNED: 'task_assigned',
-  TASK_UPDATED: 'task_updated',
-  TASK_DUE: 'task_due',
-  TASK_COMPLETED: 'task_completed',
-  MENTION: 'mention',
-  SYSTEM: 'system',
+  TASK_ASSIGNED: 'TASK_ASSIGNED',
+  TASK_UPDATED: 'TASK_UPDATED',
+  TASK_DUE: 'TASK_DUE',
+  TASK_COMPLETED: 'TASK_COMPLETED',
+  MENTION: 'MENTION',
+  SYSTEM: 'SYSTEM',
 } as const;
 
 export type NotificationType = typeof NOTIFICATION_TYPES[keyof typeof NOTIFICATION_TYPES];
