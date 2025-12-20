@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import prisma from '../../core/database/prisma';
+import prisma from '../../lib/prisma'
 import bcrypt from 'bcrypt';
 import { logger } from '../../core/utils/logger';
 import { fileUploadUtils } from '../../core/middleware/upload';

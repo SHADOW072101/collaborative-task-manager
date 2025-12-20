@@ -1,4 +1,4 @@
-import prisma from '../core/database/prisma';
+import prisma from '../lib/prisma';
 import { Prisma, Priority, Status } from '@prisma/client';
 
 export interface CreateTaskData {

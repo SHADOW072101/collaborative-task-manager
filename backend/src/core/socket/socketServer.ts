@@ -1,7 +1,7 @@
 import { Server, Socket } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
-import prisma from '../database/prisma';
+import prisma from '../../lib/prisma'
 
 export const setupSocket = (io: Server) => {
   // Authentication middleware
