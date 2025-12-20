@@ -6,13 +6,9 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
+// Create PrismaClient without datasources config
+// Prisma will automatically use DATABASE_URL from environment
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  // For Prisma 7+, pass the datasource URL differently
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL
-    }
-  },
   log: process.env.NODE_ENV === 'development' 
     ? ['query', 'error', 'warn'] 
     : ['error']
