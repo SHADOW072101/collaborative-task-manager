@@ -1,7 +1,7 @@
 🚀 Collaborative Task Manager
 
 A modern, full-stack task management application with real-time collaboration features. Built with React, TypeScript, Node.js, Express, PostgreSQL, Prisma & WebSocket integration.
-`
+```
 📁 Folder Structure
 collaborative-task-manager
 │
@@ -84,7 +84,7 @@ collaborative-task-manager
 │
 │
 └── README.md
-`
+```
 📌 Status & Technologies
 
 
@@ -178,7 +178,7 @@ Keyboard shortcuts
 Deadline reminders
 
 🏗️ Architecture
-`
+```
 ┌─────────────────────────────────────────────────────────┐
 │                     Frontend (React)                    │
 │  ┌─────────────────┐  ┌─────────────────┐             │
@@ -203,7 +203,7 @@ Deadline reminders
 │  └──────────┘  └─────────────────────────┘             │
 └─────────────────────────────────────────────────────────┘
 
-`
+```
 
 🧠 Complex Functions — Full Code Included
 1️⃣ Real-time Task Synchronization (WebSocket)
