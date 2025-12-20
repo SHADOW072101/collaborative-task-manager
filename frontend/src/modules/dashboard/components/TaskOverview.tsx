@@ -1,4 +1,4 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import type { Task } from '../../tasks/types';
 
 interface TaskOverviewProps {
@@ -8,18 +8,18 @@ interface TaskOverviewProps {
 export const TaskOverview = ({ tasks }: TaskOverviewProps) => {
   // Calculate status distribution
   const statusData = [
-    { name: 'To Do', value: tasks.filter(t => t.status === 'To Do').length },
-    { name: 'In Progress', value: tasks.filter(t => t.status === 'In Progress').length },
-    { name: 'Review', value: tasks.filter(t => t.status === 'Review').length },
-    { name: 'Completed', value: tasks.filter(t => t.status === 'Completed').length },
+    { name: 'To Do', value: tasks.filter(t => t.status === 'TODO').length },
+    { name: 'In Progress', value: tasks.filter(t => t.status === 'IN_PROGRESS').length },
+    { name: 'Review', value: tasks.filter(t => t.status === 'REVIEW').length },
+    { name: 'Completed', value: tasks.filter(t => t.status === 'COMPLETED').length },
   ];
 
   // Calculate priority distribution
   const priorityData = [
-    { name: 'Low', value: tasks.filter(t => t.priority === 'Low').length },
-    { name: 'Medium', value: tasks.filter(t => t.priority === 'Medium').length },
-    { name: 'High', value: tasks.filter(t => t.priority === 'High').length },
-    { name: 'Urgent', value: tasks.filter(t => t.priority === 'Urgent').length },
+    { name: 'Low', value: tasks.filter(t => t.priority === 'LOW').length },
+    { name: 'Medium', value: tasks.filter(t => t.priority === 'MEDIUM').length },
+    { name: 'High', value: tasks.filter(t => t.priority === 'HIGH').length },
+    { name: 'Urgent', value: tasks.filter(t => t.priority === 'URGENT').length },
   ];
 
   return (

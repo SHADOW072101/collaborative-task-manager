@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import  { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { authService } from '../services/authService';
 import { useNavigate } from 'react-router-dom';
 
@@ -225,9 +225,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
 export const useAuth = () => {
 
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  // const [user, setUser] = useState<User | null>(null);
+  // const [token, setToken] = useState<string | null>(null);
+  // const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const logout = async () => {
@@ -242,9 +242,9 @@ export const useAuth = () => {
       localStorage.removeItem('token');
       // Clear any other auth-related storage
       localStorage.removeItem('user');
-      setUser(null);
-      setToken(null);
-      setError(null);
+      // setUser(null);
+      // setToken(null);
+      // setError(null);
       
       console.log('✅ Auth state cleared');
       
