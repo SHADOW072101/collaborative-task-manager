@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { env } from '../../core/config/env';
 
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
 
 // declare global {
 //   namespace Express {
@@ -19,6 +19,12 @@ const prisma = new PrismaClient();
 //     }
 //   }
 // }
+
+
+
+const prisma = new PrismaClient({
+  datasourceUrl: process.env.DATABASE_URL  
+})
 
 export class AuthController {
   // Register user
