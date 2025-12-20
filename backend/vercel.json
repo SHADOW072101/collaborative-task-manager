@@ -2,15 +2,28 @@
   "version": 2,
   "builds": [
     {
-      "src": "src/**/*.ts",
-      "use": "@vercel/node"
+      "src": "src/index.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxLambdaSize": "10mb",
+        "includeFiles": [
+          "prisma/**",
+          "uploads/**",
+          ".env"
+        ],
+        "excludeFiles": [
+          "src/**/*.test.ts",
+          "src/**/*.spec.ts",
+          "src/lib/**",      
+          "src/types/**"   
+        ]
+      }
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "src/server.ts",
-      "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
+      "dest": "src/index.ts"
     }
   ]
 }

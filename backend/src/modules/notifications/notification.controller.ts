@@ -56,7 +56,6 @@ export class NotificationController {
           type,
           title,
           message,
-          data: data || {},
           read: false
         }
       });

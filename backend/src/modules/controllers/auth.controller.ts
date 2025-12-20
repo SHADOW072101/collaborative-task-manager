@@ -6,19 +6,19 @@ import { env } from '../../core/config/env';
 
 const prisma = new PrismaClient();
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string;
-        email: string;
-        name?: string;
-        role: string;
-        status: string
-      };
-    }
-  }
-}
+// declare global {
+//   namespace Express {
+//     interface Request {
+//       user?: {
+//         id: string;
+//         email: string;
+//         name?: string;
+//         role: string;
+//         status: string
+//       };
+//     }
+//   }
+// }
 
 export class AuthController {
   // Register user
