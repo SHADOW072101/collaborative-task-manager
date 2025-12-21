@@ -1,11 +1,13 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
-import * as dotenv from 'dotenv';
 import apiRouter from './api';
 
 // Load environment variables
-dotenv.config();
+
 
 const app = express();
 
