@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import prisma from '../../lib/prisma'
 import bcrypt from 'bcrypt';
 import { logger } from '../../core/utils/logger';
-import { fileUploadUtils } from '../../core/middleware/upload';
+// import { fileUploadUtils } from '../../core/middleware/upload';
 import { asyncHandler } from '../../shared';
 
 export const userController = {
