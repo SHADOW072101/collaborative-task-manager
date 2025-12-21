@@ -6,8 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.authController = exports.AuthController = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const client_1 = require("@prisma/client");
 const env_1 = require("../../core/config/env");
+const prisma_1 = __importDefault(require("../../lib/prisma"));
 // const prisma = new PrismaClient();
 // declare global {
 //   namespace Express {
@@ -22,9 +22,6 @@ const env_1 = require("../../core/config/env");
 //     }
 //   }
 // }
-const prisma = new client_1.PrismaClient({
-    datasourceUrl: process.env.DATABASE_URL
-});
 class AuthController {
     // Register user
     async register(req, res) {
@@ -50,7 +47,7 @@ class AuthController {
                 });
             }
             // Check if user already exists
-            const existingUser = await prisma.user.findUnique({
+            const existingUser = await prisma_1.default.user.findUnique({
                 where: { email }
             });
             if (existingUser) {
@@ -63,7 +60,7 @@ class AuthController {
             const salt = await bcryptjs_1.default.genSalt(10);
             const hashedPassword = await bcryptjs_1.default.hash(password, salt);
             // Create user
-            const user = await prisma.user.create({
+            const user = await prisma_1.default.user.create({
                 data: {
                     name,
                     email,
@@ -85,7 +82,7 @@ class AuthController {
             const refreshToken = jsonwebtoken_1.default.sign({ userId: user.id }, env_1.env.JWT_SECRET, // Or separate refresh token secret
             { expiresIn: '30d' });
             // Store refresh token in database (optional)
-            await prisma.user.update({
+            await prisma_1.default.user.update({
                 where: { id: user.id },
                 data: { refreshToken }
             });
@@ -126,7 +123,7 @@ class AuthController {
                 });
             }
             // Find user
-            const user = await prisma.user.findUnique({
+            const user = await prisma_1.default.user.findUnique({
                 where: { email }
             });
             if (!user) {
@@ -151,7 +148,7 @@ class AuthController {
             // Generate refresh token (optional)
             const refreshToken = jsonwebtoken_1.default.sign({ userId: user.id }, env_1.env.JWT_SECRET, { expiresIn: '30d' });
             // Update refresh token in database (optional)
-            await prisma.user.update({
+            await prisma_1.default.user.update({
                 where: { id: user.id },
                 data: { refreshToken }
             });
@@ -197,7 +194,7 @@ class AuthController {
                     error: 'User not authenticated'
                 });
             }
-            const user = await prisma.user.findUnique({
+            const user = await prisma_1.default.user.findUnique({
                 where: { id: userId },
                 select: {
                     id: true,
@@ -239,7 +236,7 @@ class AuthController {
             }
             // Check if email is already taken by another user
             if (email) {
-                const existingUser = await prisma.user.findFirst({
+                const existingUser = await prisma_1.default.user.findFirst({
                     where: {
                         email,
                         NOT: { id: userId }
@@ -252,7 +249,7 @@ class AuthController {
                     });
                 }
             }
-            const updatedUser = await prisma.user.update({
+            const updatedUser = await prisma_1.default.user.update({
                 where: { id: userId },
                 data: {
                     name,
@@ -286,7 +283,7 @@ class AuthController {
             const userId = req.user?.id;
             if (userId) {
                 // Clear refresh token from database
-                await prisma.user.update({
+                await prisma_1.default.user.update({
                     where: { id: userId },
                     data: { refreshToken: null }
                 });
@@ -319,7 +316,7 @@ class AuthController {
             // Verify refresh token
             const decoded = jsonwebtoken_1.default.verify(refreshToken, env_1.env.JWT_SECRET);
             // Find user with this refresh token
-            const user = await prisma.user.findUnique({
+            const user = await prisma_1.default.user.findUnique({
                 where: {
                     id: decoded.userId,
                     refreshToken

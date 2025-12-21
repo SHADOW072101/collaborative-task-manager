@@ -10,7 +10,7 @@ const envSchema = zod_1.z.object({
     JWT_EXPIRES_IN: zod_1.z.string().default('7d'),
     REFRESH_TOKEN_SECRET: zod_1.z.string().min(32).default(""),
     REFRESH_TOKEN_EXPIRES_IN: zod_1.z.string().default('30d'),
-    FRONTEND_URL: zod_1.z.string().url().default('http://localhost:5173'),
+    FRONTEND_URL: zod_1.z.string().url().default('https://collaborative-task-manager-81xh.vercel.app/'),
 });
 exports.env = envSchema.parse(process.env);
 console.log('JWT_SECRET type:', typeof exports.env.JWT_SECRET);

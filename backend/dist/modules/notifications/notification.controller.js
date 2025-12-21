@@ -1,8 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.notificationController = exports.NotificationController = void 0;
-const client_1 = require("@prisma/client");
-const prisma = new client_1.PrismaClient();
+const prisma_1 = __importDefault(require("../../lib/prisma"));
 class NotificationController {
     // Get user's notifications
     async getUserNotifications(req, res) {
@@ -14,7 +16,7 @@ class NotificationController {
                     error: 'User not authenticated'
                 });
             }
-            const notifications = await prisma.notification.findMany({
+            const notifications = await prisma_1.default.notification.findMany({
                 where: { userId },
                 orderBy: { createdAt: 'desc' },
                 take: 50 // Limit to 50 most recent
@@ -43,7 +45,7 @@ class NotificationController {
                     error: 'userId, type, title, and message are required'
                 });
             }
-            const notification = await prisma.notification.create({
+            const notification = await prisma_1.default.notification.create({
                 data: {
                     userId,
                     type,
@@ -77,7 +79,7 @@ class NotificationController {
                 });
             }
             // Verify notification belongs to user
-            const notification = await prisma.notification.findFirst({
+            const notification = await prisma_1.default.notification.findFirst({
                 where: {
                     id,
                     userId
@@ -89,7 +91,7 @@ class NotificationController {
                     error: 'Notification not found'
                 });
             }
-            const updatedNotification = await prisma.notification.update({
+            const updatedNotification = await prisma_1.default.notification.update({
                 where: { id },
                 data: { read: true }
             });
@@ -116,7 +118,7 @@ class NotificationController {
                     error: 'User not authenticated'
                 });
             }
-            await prisma.notification.updateMany({
+            await prisma_1.default.notification.updateMany({
                 where: {
                     userId,
                     read: false
@@ -150,7 +152,7 @@ class NotificationController {
                 });
             }
             // Verify notification belongs to user
-            const notification = await prisma.notification.findFirst({
+            const notification = await prisma_1.default.notification.findFirst({
                 where: {
                     id,
                     userId
@@ -162,7 +164,7 @@ class NotificationController {
                     error: 'Notification not found'
                 });
             }
-            await prisma.notification.delete({
+            await prisma_1.default.notification.delete({
                 where: { id }
             });
             return res.status(200).json({
@@ -188,7 +190,7 @@ class NotificationController {
                     error: 'User not authenticated'
                 });
             }
-            const count = await prisma.notification.count({
+            const count = await prisma_1.default.notification.count({
                 where: {
                     userId,
                     read: false

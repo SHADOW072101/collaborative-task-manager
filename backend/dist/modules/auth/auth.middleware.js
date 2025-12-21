@@ -6,8 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.authenticate = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const env_1 = require("../../core/config/env");
-const client_1 = require("@prisma/client");
-const prisma = new client_1.PrismaClient();
+// import { PrismaClient } from '@prisma/client';
+const prisma_1 = __importDefault(require("../../lib/prisma"));
 // declare global {
 //   namespace Express {
 //     interface Request {
@@ -44,7 +44,7 @@ const authenticate = async (req, res, next) => {
         // Verify token
         const decoded = jsonwebtoken_1.default.verify(token, env_1.env.JWT_SECRET);
         // Check if user still exists in database
-        const user = await prisma.user.findUnique({
+        const user = await prisma_1.default.user.findUnique({
             where: { id: decoded.userId },
             select: {
                 id: true,

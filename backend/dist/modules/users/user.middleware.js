@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authMiddleware = exports.canViewSensitiveInfo = exports.restrictFieldModification = exports.checkResourceOwnership = exports.requireActiveUser = exports.requireRole = exports.authorizeUser = void 0;
-const prisma_1 = __importDefault(require("../../core/database/prisma"));
+const prisma_1 = __importDefault(require("../../lib/prisma"));
 const logger_1 = require("../../core/utils/logger");
 const authorizeUser = async (req, res, next) => {
     try {
@@ -36,10 +36,10 @@ const authorizeUser = async (req, res, next) => {
             return next();
         }
         // For team leaders, check if they're in the same team
-        const isTeamLeader = await isUserTeamLeader(currentUser.id, userId);
-        if (isTeamLeader) {
-            return next();
-        }
+        // const isTeamLeader = await isUserTeamLeader(currentUser.id, userId);
+        // if (isTeamLeader) {
+        //   return next();
+        // }
         // Deny access for all other cases
         return res.status(403).json({
             error: 'Unauthorized to access this resource',
@@ -52,35 +52,36 @@ const authorizeUser = async (req, res, next) => {
     }
 };
 exports.authorizeUser = authorizeUser;
-/**
- * Check if current user is a team leader of the target user
- */
-const isUserTeamLeader = async (currentUserId, targetUserId) => {
-    try {
-        // Find teams where current user is a leader/admin and target user is a member
-        const teamMemberships = await prisma_1.default.teamMember.findMany({
-            where: {
-                userId: currentUserId,
-                role: { in: ['LEADER', 'ADMIN'] }
-            },
-            include: {
-                team: {
-                    include: {
-                        members: {
-                            where: { userId: targetUserId }
-                        }
-                    }
-                }
-            }
-        });
-        // Check if target user is in any of these teams
-        return teamMemberships.some(membership => membership.team.members.length > 0);
-    }
-    catch (error) {
-        logger_1.logger.error('Team leader check error:', error);
-        return false;
-    }
-};
+// /**
+//  * Check if current user is a team leader of the target user
+//  */
+// const isUserTeamLeader = async (currentUserId: string, targetUserId: string): Promise<boolean> => {
+//   try {
+//     // Find teams where current user is a leader/admin and target user is a member
+//     const teamMemberships = await prisma.teamMember.findMany({
+//       where: {
+//         userId: currentUserId,
+//         role: { in: ['LEADER', 'ADMIN'] }
+//       },
+//       include: {
+//         team: {
+//           include: {
+//             members: {
+//               where: { userId: targetUserId }
+//             }
+//           }
+//         }
+//       }
+//     });
+//     // Check if target user is in any of these teams
+//     return teamMemberships.some(membership => 
+//       membership.team.members.length > 0
+//     );
+//   } catch (error) {
+//     logger.error('Team leader check error:', error);
+//     return false;
+//   }
+// };
 /**
  * Middleware to check if user has specific role
  */

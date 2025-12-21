@@ -4,9 +4,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userController = void 0;
-const prisma_1 = __importDefault(require("../../core/database/prisma"));
+const prisma_1 = __importDefault(require("../../lib/prisma"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const logger_1 = require("../../core/utils/logger");
+// import { fileUploadUtils } from '../../core/middleware/upload';
 const shared_1 = require("../../shared");
 exports.userController = {
     async getUsers(req, res) {

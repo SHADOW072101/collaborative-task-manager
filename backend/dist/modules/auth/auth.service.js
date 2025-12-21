@@ -7,7 +7,7 @@ exports.authService = exports.AuthService = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const env_1 = require("../../core/config/env");
-const prisma_1 = __importDefault(require("../../core/database/prisma"));
+const prisma_1 = __importDefault(require("../../lib/prisma"));
 class AuthService {
     async register(data) {
         // Check if user already exists

@@ -44,7 +44,7 @@ const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
 const http_1 = require("http");
 const socket_io_1 = require("socket.io");
-const path_1 = __importDefault(require("path")); // ✅ Changed from path/win32 to path
+const path_1 = __importDefault(require("path"));
 const env_1 = require("./core/config/env");
 const errorHandler_1 = require("./core/middleware/errorHandler");
 const notFoundHandler_1 = require("./core/middleware/notFoundHandler");
@@ -74,8 +74,7 @@ app.use((req, res, next) => {
 app.use((0, helmet_1.default)());
 app.use((0, cors_1.default)({
     origin: [env_1.env.FRONTEND_URL,
-        'https://your-frontend-domain.vercel.app',
-        /\.vercel\.app$/
+        'https://collaborative-task-manager-81xh.vercel.app/'
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -86,15 +85,14 @@ app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.options('*', (0, cors_1.default)({
     origin: [env_1.env.FRONTEND_URL,
-        'https://your-frontend-domain.vercel.app',
-        /\.vercel\.app$/
+        'https://collaborative-task-manager-81xh.vercel.app/'
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
 }));
 // Health check
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
     console.log('✅ Health check called');
     res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });

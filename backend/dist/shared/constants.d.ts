@@ -1,24 +1,24 @@
 export declare const TASK_STATUS: {
-    readonly TODO: "ToDo";
-    readonly IN_PROGRESS: "InProgress";
-    readonly REVIEW: "Review";
-    readonly COMPLETED: "Completed";
+    readonly TODO: "TODO";
+    readonly IN_PROGRESS: "INPROGRESS";
+    readonly REVIEW: "REVIEW";
+    readonly COMPLETED: "COMPLETED";
 };
 export type TaskStatus = typeof TASK_STATUS[keyof typeof TASK_STATUS];
 export declare const TASK_PRIORITY: {
-    readonly LOW: "Low";
-    readonly MEDIUM: "Medium";
-    readonly HIGH: "High";
-    readonly URGENT: "Urgent";
+    readonly LOW: "LOW";
+    readonly MEDIUM: "MEDIUM";
+    readonly HIGH: "HIGH";
+    readonly URGENT: "URGENT";
 };
 export type TaskPriority = typeof TASK_PRIORITY[keyof typeof TASK_PRIORITY];
 export declare const NOTIFICATION_TYPES: {
-    readonly TASK_ASSIGNED: "task_assigned";
-    readonly TASK_UPDATED: "task_updated";
-    readonly TASK_DUE: "task_due";
-    readonly TASK_COMPLETED: "task_completed";
-    readonly MENTION: "mention";
-    readonly SYSTEM: "system";
+    readonly TASK_ASSIGNED: "TASK_ASSIGNED";
+    readonly TASK_UPDATED: "TASK_UPDATED";
+    readonly TASK_DUE: "TASK_DUE";
+    readonly TASK_COMPLETED: "TASK_COMPLETED";
+    readonly MENTION: "MENTION";
+    readonly SYSTEM: "SYSTEM";
 };
 export type NotificationType = typeof NOTIFICATION_TYPES[keyof typeof NOTIFICATION_TYPES];
 export declare const USER_ROLES: {

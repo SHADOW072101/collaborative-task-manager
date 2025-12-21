@@ -2,7 +2,7 @@
   "name": "collaborative-task-manager-backend",
   "version": "1.0.0",
   "description": "Backend for Collaborative Task Manager",
-  "main": "/index.ts",
+  "main": "dist/index.ts",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",

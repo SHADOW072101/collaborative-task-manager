@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.setupSocket = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const env_1 = require("../config/env");
-const prisma_1 = __importDefault(require("../database/prisma"));
+const prisma_1 = __importDefault(require("../../lib/prisma"));
 const setupSocket = (io) => {
     // Authentication middleware
     io.use(async (socket, next) => {

@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.taskService = exports.TaskService = void 0;
-const prisma_1 = __importDefault(require("../core/database/prisma"));
+const prisma_1 = __importDefault(require("../lib/prisma"));
 class TaskService {
     // Create a new task
     async createTask(data) {

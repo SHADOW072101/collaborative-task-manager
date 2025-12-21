@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-export declare const prisma: PrismaClient<{
-    datasourceUrl: string | undefined;
-}, never, $Extensions.DefaultArgs>;
+declare const prisma: PrismaClient<import(".prisma/client").Prisma.PrismaClientOptions, never, $Extensions.DefaultArgs>;
+export default prisma;
 //# sourceMappingURL=prisma.d.ts.map

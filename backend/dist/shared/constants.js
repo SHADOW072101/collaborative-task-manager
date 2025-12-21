@@ -4,25 +4,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CACHE_TTL = exports.PAGINATION_DEFAULTS = exports.USER_ROLES = exports.NOTIFICATION_TYPES = exports.TASK_PRIORITY = exports.TASK_STATUS = void 0;
 // Task constants
 exports.TASK_STATUS = {
-    TODO: 'ToDo',
-    IN_PROGRESS: 'InProgress',
-    REVIEW: 'Review',
-    COMPLETED: 'Completed',
+    TODO: 'TODO',
+    IN_PROGRESS: 'INPROGRESS',
+    REVIEW: 'REVIEW',
+    COMPLETED: 'COMPLETED',
 };
 exports.TASK_PRIORITY = {
-    LOW: 'Low',
-    MEDIUM: 'Medium',
-    HIGH: 'High',
-    URGENT: 'Urgent',
+    LOW: 'LOW',
+    MEDIUM: 'MEDIUM',
+    HIGH: 'HIGH',
+    URGENT: 'URGENT',
 };
 // Notification types
 exports.NOTIFICATION_TYPES = {
-    TASK_ASSIGNED: 'task_assigned',
-    TASK_UPDATED: 'task_updated',
-    TASK_DUE: 'task_due',
-    TASK_COMPLETED: 'task_completed',
-    MENTION: 'mention',
-    SYSTEM: 'system',
+    TASK_ASSIGNED: 'TASK_ASSIGNED',
+    TASK_UPDATED: 'TASK_UPDATED',
+    TASK_DUE: 'TASK_DUE',
+    TASK_COMPLETED: 'TASK_COMPLETED',
+    MENTION: 'MENTION',
+    SYSTEM: 'SYSTEM',
 };
 // User roles (if needed)
 exports.USER_ROLES = {
