@@ -1,5 +1,5 @@
-// backend/src/lib/prisma.js
-const { PrismaClient } = require('@prisma/client');
+// src/lib/prisma.ts
+import { PrismaClient } from '@prisma/client';
 
 console.log('🔧 Prisma initialization started');
 console.log('📋 Environment check at Prisma init:');
@@ -12,26 +12,27 @@ for (const key in process.env) {
   }
 }
 
+// Declare prisma variable
+let prismaInstance: PrismaClient;
+
 // Check if DATABASE_URL is actually set
 if (!process.env.DATABASE_URL) {
   console.error('❌ FATAL: DATABASE_URL is not set in environment variables!');
   console.error('   Current environment keys:', Object.keys(process.env).join(', '));
   
-  // Return a mock client that won't crash
-  const mockPrisma = {
+  // Create a mock client that won't crash
+  prismaInstance = {
     $connect: async () => { 
       console.log('⚠️ Mock: Database connection skipped - DATABASE_URL not set');
     },
     $disconnect: async () => {
       console.log('⚠️ Mock: Database disconnect skipped');
-
-  }
-}
-  
-  module.exports = mockPrisma;
+    }
+    // Add other Prisma methods as needed...
+  } as unknown as PrismaClient;
 } else {
   console.log('✅ DATABASE_URL found, creating real Prisma client');
-  const prisma = new PrismaClient({
+  prismaInstance = new PrismaClient({
     log: ['error', 'warn'],
     datasources: {
       db: {
@@ -39,6 +40,8 @@ if (!process.env.DATABASE_URL) {
       },
     },
   });
-  
-  module.exports = prisma;
 }
+
+// Export the prisma instance
+const prisma = prismaInstance;
+export default prisma;
