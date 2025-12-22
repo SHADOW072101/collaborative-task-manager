@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import { taskService } from '../../services/task.service';
-import { io } from '../../app';
+import { io } from '../../server';
 import { Status } from '@prisma/client';
 
 // Validation Schemas using Zod
