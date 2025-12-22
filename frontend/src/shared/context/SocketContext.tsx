@@ -37,7 +37,7 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
 
     console.log('🔌 Attempting to connect socket with token');
     
-    const socketInstance = io('http://https://collaborative-task-manager-sable.vercel.app', {
+    const socketInstance = io('http://collaborative-task-manager-sable.vercel.app', {
       auth: { 
         token,
         userId: JSON.parse(localStorage.getItem('user') || '{}')?.id 
