@@ -1,4 +1,4 @@
-// backend/src/index.ts - FIXED FOR VERCEL
+// backend/src/index.ts
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -39,8 +39,9 @@ app.use((req, res, next) => {
 app.use(helmet());
 
 app.use(cors({
-  origin: ['https://collaborative-task-manager-81xh.vercel.app',
-    'https://collaborative-task-manager-81xh-d3swt3m6a-ganesh-naiks-projects.vercel.app',],
+  origin: ["https://collaborative-task-manager-81xh.vercel.app",
+    "https://collaborative-task-manager-81xh-d3swt3m6a-ganesh-naiks-projects.vercel.app",
+    "https://collaborative-task-manager-81xh-p5epxvgg9-ganesh-naiks-projects.vercel.app"],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],

@@ -1,4 +1,4 @@
-// backend/src/api.ts - FIXED VERSION
+// backend/src/api.ts 
 import { Router } from 'express';
 import { authController } from './modules/controllers/auth.controller';
 import { taskController } from './modules/tasks/task.controller';
