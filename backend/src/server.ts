@@ -1,13 +1,13 @@
-// backend/src/server.ts (for local development only)
-import app from './index';
+import { createServer } from "http";
+import { Server } from "socket.io";
+import app from "./app";
+import { setupSocket } from "./core/socket/socketServer";
 
-const PORT = process.env.PORT || 3000;
+const httpServer = createServer(app);
+const io = new Server(httpServer, { cors: { origin: "*" } });
 
-// Only start server if running locally
-if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`📁 Health check: http://localhost:${PORT}/health`);
-  });
-}
+setupSocket(io);
+
+httpServer.listen(3000, () => {
+  console.log("🚀 Server running with sockets");
+});
