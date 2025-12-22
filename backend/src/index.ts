@@ -39,7 +39,8 @@ app.use((req, res, next) => {
 app.use(helmet());
 
 app.use(cors({
-  origin: [env.FRONTEND_URL, 'https://collaborative-task-manager-81xh.vercel.app'],
+  origin: ['https://collaborative-task-manager-81xh.vercel.app',
+    'https://collaborative-task-manager-81xh-d3swt3m6a-ganesh-naiks-projects.vercel.app',],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
