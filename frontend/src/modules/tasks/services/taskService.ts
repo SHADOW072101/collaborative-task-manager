@@ -7,7 +7,7 @@ export const taskService = {
     console.log('🔍 taskService.createTask called with:', data);
     
     try {
-      const response = await apiClient.post<Task>('/api/tasks', data);
+      const response = await apiClient.post<Task>('/tasks', data);
       console.log('✅ Task created successfully:', response.data);
       return response.data;
     } catch (error: any) {
@@ -21,7 +21,7 @@ export const taskService = {
   },
 
   getTaskById: async (id: string) => {
-    const response = await apiClient.get(`/api/tasks/${id}`);
+    const response = await apiClient.get(`/tasks/${id}`);
     return response.data;
   },
 
@@ -35,7 +35,7 @@ export const taskService = {
     console.log('🔍 taskService.getAll called with filters:', filters);
     
     try {
-      const response = await apiClient.get<Task[]>('/api/tasks', {
+      const response = await apiClient.get<Task[]>('/tasks', {
         params: filters,
       });
       
@@ -63,7 +63,7 @@ export const taskService = {
     console.log('🔍 taskService.getDashboardStats called');
     
     try {
-      const response = await apiClient.get('/api/tasks/dashboard/stats');
+      const response = await apiClient.get('/tasks/dashboard/stats');
       console.log('✅ Dashboard stats fetched');
       return response.data;
     } catch (error: any) {
