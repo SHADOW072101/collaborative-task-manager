@@ -14,6 +14,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import path from 'path';
 import jwt  from 'jsonwebtoken';
+import prisma from './lib/prisma';
 
 const app = express();
 
@@ -99,7 +100,6 @@ app.get('/api/debug-prisma', async (req, res) => {
   try {
     // Dynamic import to avoid startup failures
     const { PrismaClient } = await import('@prisma/client');
-    const prisma = new PrismaClient();
     
     await prisma.$connect();
     console.log('✅ Prisma connected');
@@ -153,7 +153,6 @@ authRouter.post('/register', async (req, res) => {
     const bcrypt = await import('bcryptjs');
     const jwt = await import('jsonwebtoken');
     
-    const prisma = new PrismaClient();
     
     // Check if user exists
     const existingUser = await prisma.user.findUnique({
@@ -231,7 +230,6 @@ authRouter.post('/login', async (req, res) => {
     const bcrypt = await import('bcryptjs');
     const jwt = await import('jsonwebtoken');
     
-    const prisma = new PrismaClient();
     
     // Find user
     const user = await prisma.user.findUnique({
@@ -308,7 +306,6 @@ authRouter.get('/me', async (req, res) => {
     
     const jwt = await import('jsonwebtoken');
     const { PrismaClient } = await import('@prisma/client');
-    const prisma = new PrismaClient();
     
     const jwtSecret = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
     const decoded = jwt.verify(token, jwtSecret) as { userId: string };
@@ -364,7 +361,6 @@ const taskRouter = express.Router();
 taskRouter.get('/', async (req, res) => {
   try {
     const { PrismaClient } = await import('@prisma/client');
-    const prisma = new PrismaClient();
     
     const tasks = await prisma.task.findMany({
       include: {
