@@ -46,6 +46,7 @@ console.log('  DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET ❌')
 console.log('  PORT:', process.env.PORT);
 console.log('  FRONTEND_URL:', process.env.FRONTEND_URL || 'not set');
 const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
 const path_1 = __importDefault(require("path"));
 const app = (0, express_1.default)();
@@ -57,36 +58,26 @@ app.use((req, res, next) => {
 // Middleware
 app.use((0, helmet_1.default)());
 // CORS configuration
-const allowedOrigins = [
-    '*', // Allow all origins - adjust as needed for production
-];
-app.options('*', (req, res) => {
-    const origin = req.headers.origin || '';
-    if (allowedOrigins.includes(origin) || !origin) {
-        res.header('Access-Control-Allow-Origin', origin || '*');
-        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-        res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With');
-        res.header('Access-Control-Allow-Credentials', 'true');
-        res.header('Access-Control-Max-Age', '86400'); // 24 hours
-        return res.status(200).end();
-    }
-    res.status(403).json({ error: 'Origin not allowed' });
-});
-// Regular CORS middleware
-app.use((req, res, next) => {
-    const origin = req.headers.origin || '';
-    if (allowedOrigins.includes(origin) || !origin) {
-        res.header('Access-Control-Allow-Origin', origin || '*');
-        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-        res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With');
-        res.header('Access-Control-Allow-Credentials', 'true');
-    }
-    // Handle preflight requests
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
-    next();
-}); // Enable preflight for all routes
+app.use((0, cors_1.default)({
+    origin: (origin, callback) => {
+        // Allow server-to-server, Postman, curl
+        if (!origin)
+            return callback(null, true);
+        // Allow all Vercel preview deployments
+        if (origin.endsWith('.vercel.app')) {
+            return callback(null, true);
+        }
+        // Optional: allow custom prod domain later
+        if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) {
+            return callback(null, true);
+        }
+        return callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+app.options('*', (0, cors_1.default)()); // Enable preflight for all routes
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 // ========== HEALTH & TEST ENDPOINTS ==========

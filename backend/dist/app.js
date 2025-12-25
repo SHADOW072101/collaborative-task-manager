@@ -48,10 +48,13 @@ const user_routes_1 = __importDefault(require("./modules/users/user.routes"));
 const errorHandler_1 = require("./core/middleware/errorHandler");
 const notFoundHandler_1 = require("./core/middleware/notFoundHandler");
 const app = (0, express_1.default)();
-/* ---------- Middleware ---------- */
 app.use((0, cors_1.default)({
-    origin: '*',
-    credentials: true,
+    origin: [
+        '*',
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
 }));
 app.use((0, helmet_1.default)());
 app.use(express_1.default.json());
