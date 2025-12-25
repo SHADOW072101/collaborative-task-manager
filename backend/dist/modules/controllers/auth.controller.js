@@ -145,20 +145,24 @@ class AuthController {
                 userId: user.id,
                 email: user.email,
             }, env_1.env.JWT_SECRET, { expiresIn: env_1.env.JWT_EXPIRES_IN });
-            // Generate refresh token (optional)
-            const refreshToken = jsonwebtoken_1.default.sign({ userId: user.id }, env_1.env.JWT_SECRET, { expiresIn: '30d' });
-            // Update refresh token in database (optional)
-            await prisma_1.default.user.update({
-                where: { id: user.id },
-                data: { refreshToken }
-            });
-            // Set refresh token as HTTP-only cookie (optional)
-            res.cookie('refreshToken', refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-            });
+            // // Generate refresh token (optional)
+            // const refreshToken = jwt.sign(
+            //   { userId: user.id },
+            //   env.JWT_SECRET as jwt.Secret,
+            //   { expiresIn: '30d' } as jwt.SignOptions
+            // );
+            // // Update refresh token in database (optional)
+            // await prisma.user.update({
+            //   where: { id: user.id },
+            //   data: { refreshToken }
+            // });
+            // // Set refresh token as HTTP-only cookie (optional)
+            // res.cookie('refreshToken', refreshToken, {
+            //   httpOnly: true,
+            //   secure: process.env.NODE_ENV === 'production',
+            //   sameSite: 'strict',
+            //   maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+            // });
             // Prepare user data (exclude password)
             const userData = {
                 id: user.id,

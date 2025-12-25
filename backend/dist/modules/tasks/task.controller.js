@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.taskController = exports.TaskController = exports.createTaskSchema = void 0;
 const zod_1 = require("zod");
 const task_service_1 = require("../../services/task.service");
-const app_1 = require("../../app");
+const server_1 = require("../../server");
 // Validation Schemas using Zod
 exports.createTaskSchema = zod_1.z.object({
     title: zod_1.z.string().min(1).max(200),
@@ -60,7 +60,7 @@ class TaskController {
                 status, // Use corrected status
             });
             // Emit socket event
-            app_1.io.emit('task:created', task);
+            server_1.io.emit('task:created', task);
             res.status(201).json({
                 success: true,
                 data: task,
@@ -176,11 +176,11 @@ class TaskController {
             };
             const updatedTask = await task_service_1.taskService.updateTask(id, updateData);
             // Emit socket event for real-time updates
-            app_1.io.emit('task:updated', updatedTask);
+            server_1.io.emit('task:updated', updatedTask);
             // Send notification if assignee changed
             if (validatedData.assignedToId &&
                 validatedData.assignedToId !== existingTask.assignedToId) {
-                app_1.io.to(`user:${validatedData.assignedToId}`).emit('task:assigned', {
+                server_1.io.to(`user:${validatedData.assignedToId}`).emit('task:assigned', {
                     task: updatedTask,
                     assignedBy: req.user.id,
                 });
@@ -229,7 +229,7 @@ class TaskController {
             }
             await task_service_1.taskService.deleteTask(id);
             // Emit socket event for real-time updates
-            app_1.io.emit('task:deleted', id);
+            server_1.io.emit('task:deleted', id);
             res.status(200).json({
                 success: true,
                 message: 'Task deleted successfully',
@@ -270,9 +270,9 @@ class TaskController {
             const validatedData = assignTaskSchema.parse(req.body);
             const updatedTask = await task_service_1.taskService.assignTask(id, validatedData.userId);
             // Emit socket event for real-time updates
-            app_1.io.emit('task:updated', updatedTask);
+            server_1.io.emit('task:updated', updatedTask);
             // Send notification to assignee
-            app_1.io.to(`user:${validatedData.userId}`).emit('task:assigned', {
+            server_1.io.to(`user:${validatedData.userId}`).emit('task:assigned', {
                 task: updatedTask,
                 assignedBy: req.user.id,
             });
@@ -326,10 +326,10 @@ class TaskController {
             const validatedData = updateStatusSchema.parse(req.body);
             const updatedTask = await task_service_1.taskService.updateTaskStatus(id, validatedData.status);
             // Emit socket event for real-time updates
-            app_1.io.emit('task:updated', updatedTask);
+            server_1.io.emit('task:updated', updatedTask);
             // Send notification if task is completed
             if (validatedData.status === 'COMPLETED') {
-                app_1.io.to(`user:${existingTask.creatorId}`).emit('task:COMPLETED', {
+                server_1.io.to(`user:${existingTask.creatorId}`).emit('task:COMPLETED', {
                     task: updatedTask,
                     completedBy: req.user.id,
                 });

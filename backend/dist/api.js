@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-// backend/src/api.ts - FIXED VERSION
+// backend/src/api.ts 
 const express_1 = require("express");
 const auth_controller_1 = require("./modules/controllers/auth.controller");
 const task_controller_1 = require("./modules/tasks/task.controller");

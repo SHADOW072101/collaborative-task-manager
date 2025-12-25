@@ -3,15 +3,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// backend/src/server.ts (for local development only)
-const index_1 = __importDefault(require("./index"));
-const PORT = process.env.PORT || 3000;
-// Only start server if running locally
-if (require.main === module) {
-    index_1.default.listen(PORT, () => {
-        console.log(`🚀 Server running on port ${PORT}`);
-        console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
-        console.log(`📁 Health check: http://localhost:${PORT}/health`);
-    });
-}
+exports.io = void 0;
+const http_1 = require("http");
+const socket_io_1 = require("socket.io");
+const app_1 = __importDefault(require("./app"));
+const socketServer_1 = require("./core/socket/socketServer");
+const httpServer = (0, http_1.createServer)(app_1.default);
+const io = new socket_io_1.Server(httpServer, { cors: { origin: "*" } });
+exports.io = io;
+(0, socketServer_1.setupSocket)(io);
+httpServer.listen(3000, () => {
+    console.log("🚀 Server running with sockets");
+});
 //# sourceMappingURL=server.js.map

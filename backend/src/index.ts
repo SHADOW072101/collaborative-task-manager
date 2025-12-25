@@ -12,6 +12,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import path from 'path';
+import jwt from 'jsonwebtoken';
 
 // Try to import env config, but have fallback
 let env;
@@ -82,6 +83,33 @@ app.get('/api/test', (req, res) => {
   });
 });
 
+app.get('/api/debug-prisma', async (req, res) => {
+  try {
+    const prisma = require('../lib/prisma').default;
+    
+    // Test connection
+    await prisma.$connect();
+    console.log('✅ Prisma connected');
+    
+    // Try a simple query
+    const userCount = await prisma.user.count();
+    
+    res.json({
+      success: true,
+      message: 'Prisma is working',
+      userCount: userCount,
+      database: process.env.DATABASE_URL ? 'configured' : 'not configured'
+    });
+    
+  } catch (error) {
+    console.error('❌ Prisma debug error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Prisma debug failed',
+    });
+  }
+});
+
 // ========== STATIC FILES ==========
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
@@ -90,39 +118,159 @@ try {
   const authRoutes = require('./modules/auth/auth.routes');
   app.use('/api/auth', authRoutes);
   console.log('✅ Auth routes loaded');
-} catch (error) {
-  console.warn('⚠️ Auth routes not found, creating fallback');
-  // Create fallback auth routes
+} catch (error: any) {
+  console.error('❌ Failed to load auth routes:', error.message);
+  console.error('Stack:', error.stack);
+  
+  // Create minimal working auth routes
   const authRouter = express.Router();
-  authRouter.post('/register', (req, res) => {
-    res.status(201).json({
-      success: true,
-      message: 'Registration successful (fallback)',
-      data: {
-        user: {
-          id: 'fallback-id',
-          email: req.body.email,
-          name: req.body.name
-        },
-        token: 'fallback-jwt-token'
+  
+  authRouter.post('/register', async (req, res) => {
+    try {
+      console.log('🔄 Using direct database registration');
+      
+      // Direct database access
+      const { PrismaClient } = await import('@prisma/client');
+      const bcrypt = await import('bcryptjs');
+      const jwt = await import('jsonwebtoken');
+      
+      const prisma = new PrismaClient();
+      
+      // Check existing user
+      const existingUser = await prisma.user.findUnique({
+        where: { email: req.body.email },
+      });
+      
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          error: 'User already exists'
+        });
       }
-    });
-  });
-  authRouter.post('/login', (req, res) => {
-    res.json({
-      success: true,
-      message: 'Login successful (fallback)',
-      data: {
-        user: {
-          id: 'fallback-user',
+      
+      // Hash password
+      const hashedPassword = await bcrypt.hash(req.body.password, 12);
+      
+      // Create user
+      const user = await prisma.user.create({
+        data: {
+          name: req.body.name,
           email: req.body.email,
-          name: 'Test User'
+          password: hashedPassword,
         },
-        token: 'fallback-jwt-token'
-      }
-    });
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          createdAt: true,
+        },
+      });
+      
+      // Generate token
+      const token = jwt.sign(
+        { userId: user.id },
+        process.env.JWT_SECRET || 'secret',
+        { expiresIn: '7d' }
+      );
+      
+      await prisma.$disconnect();
+      
+      res.status(201).json({
+        success: true,
+        data: { user, token }
+      });
+      
+    } catch (error: any) {
+      console.error('Direct registration error:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
   });
-  app.use('/api/auth', authRouter);
+  
+  authRouter.post('/login', async (req, res) => {
+    try {
+      console.log('🔐 LOGIN request:', req.body.email);
+      
+      // Validate request
+      if (!req.body.email || !req.body.password) {
+        return res.status(400).json({
+          success: false,
+          error: 'Email and password are required'
+        });
+      }
+      
+      // Dynamically import required modules
+      const { PrismaClient } = await import('@prisma/client');
+      const bcrypt = await import('bcryptjs');
+      const jwt = await import('jsonwebtoken');
+      
+      const prisma = new PrismaClient();
+      
+      // Find user by email
+      const user = await prisma.user.findUnique({
+        where: { email: req.body.email },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          password: true,
+          createdAt: true,
+        },
+      });
+      
+      if (!user) {
+        await prisma.$disconnect();
+        return res.status(401).json({
+          success: false,
+          error: 'Invalid email or password'
+        });
+      }
+      
+      // Verify password
+      const isValidPassword = await bcrypt.compare(req.body.password, user.password);
+      
+      if (!isValidPassword) {
+        await prisma.$disconnect();
+        return res.status(401).json({
+          success: false,
+          error: 'Invalid email or password'
+        });
+      }
+      
+      // Remove password from user object
+      const { password, ...userWithoutPassword } = user;
+      
+      // Generate JWT token
+      const jwtSecret = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+      const token = jwt.sign(
+        { userId: user.id },
+        jwtSecret,
+        { expiresIn: process.env.JWT_EXPIRES_IN || '7d' } as jwt.SignOptions 
+      );
+      
+      await prisma.$disconnect();
+      
+      console.log('✅ User logged in:', user.email);
+      
+      res.json({
+        success: true,
+        message: 'Login successful',
+        data: {
+          user: userWithoutPassword,
+          token
+        }
+      });
+      
+    } catch (error: any) {
+      console.error('❌ Login error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Login failed: ' + error.message
+      });
+    }
+  });
 }
 
 try {

@@ -4,84 +4,60 @@ import { env } from '../config/env';
 import prisma from '../../lib/prisma'
 
 export const setupSocket = (io: Server) => {
-  // Authentication middleware
-  io.use(async (socket: Socket, next) => {
+  io.use(async (socket, next) => {
     try {
-      const token = socket.handshake.auth.token;
-      
-      if (!token) {
-        console.log('❌ No token provided for socket connection');
-        return next(new Error('Authentication error: No token'));
-      }
+      const token = socket.handshake.auth?.token;
+      if (!token) return next(new Error("AUTH_FAILED"));
 
-      // Verify token
-      const decoded = jwt.verify(token, env.JWT_SECRET) as { userId: string; email: string };
-      
-      // Verify user exists
+      const decoded = jwt.verify(token, env.JWT_SECRET) as {
+        userId: string;
+        email: string;
+        exp?: number;
+      };
+
       const user = await prisma.user.findUnique({
         where: { id: decoded.userId },
-        select: { id: true, email: true, name: true }
+        select: { id: true, email: true, name: true },
       });
 
-      if (!user) {
-        console.log('❌ User not found for socket connection');
-        return next(new Error('Authentication error: User not found'));
+      if (!user) return next(new Error("AUTH_FAILED"));
+
+      socket.data.user = user;
+
+      if (decoded.exp) {
+        const ttl = decoded.exp * 1000 - Date.now();
+        if (ttl <= 0) return next(new Error("TOKEN_EXPIRED"));
+        setTimeout(() => socket.disconnect(true), ttl);
       }
 
-      // Attach user to socket
-      socket.data.user = user;
-      console.log(`✅ Socket authenticated for user: ${user.name} (${user.id})`);
-      
       next();
-    } catch (error) {
-      console.error('❌ Socket auth error:', error);
-      next(new Error('Authentication error'));
+    } catch {
+      next(new Error("AUTH_FAILED"));
     }
   });
 
-  io.on('connection', (socket: Socket) => {
-    const user = socket.data.user;
-    
-    if (!user) {
-      console.log('❌ No user data on socket, disconnecting');
-      socket.disconnect();
-      return;
-    }
-
-    console.log(`👤 User ${user.name} (${user.id}) connected with socket ${socket.id}`);
-
-    // Join user to their personal room
+  io.on("connection", (socket) => {
+    const user = socket.data.user!;
     socket.join(`user:${user.id}`);
 
-    // Handle disconnection
-    socket.on('disconnect', (reason) => {
-      console.log(`👋 User ${user.name} (${user.id}) disconnected. Reason: ${reason}`);
+    socket.on("task:create", (task) => {
+      io.emit("task:created", task);
     });
 
-    // Handle custom events
-    socket.on('task:create', (task) => {
-      console.log('📝 Task created via socket:', task.title);
-      socket.broadcast.emit('task:created', task);
+    socket.on("task:update", (task) => {
+      io.emit("task:updated", task);
     });
 
-    socket.on('task:update', (task) => {
-      console.log('✏️ Task updated via socket:', task.title);
-      io.emit('task:updated', task);
+    socket.on("task:delete", (taskId) => {
+      io.emit("task:deleted", taskId);
     });
 
-    socket.on('task:delete', (taskId) => {
-      console.log('🗑️ Task deleted via socket:', taskId);
-      io.emit('task:deleted', taskId);
+    socket.on("task:assign", ({ task, assignedToId }) => {
+      io.to(`user:${assignedToId}`).emit("task:assigned", task);
     });
 
-    socket.on('task:assign', (data) => {
-      console.log('👥 Task assigned via socket:', data.task.title);
-      
-      // Notify the assignee
-      io.to(`user:${data.assignedToId}`).emit('task:assigned', data.task);
-      
-      // Notify everyone else
-      socket.broadcast.emit('task:assignedToOthers', data.task);
+    socket.on("disconnect", () => {
+      socket.leave(`user:${user.id}`);
     });
   });
 };
