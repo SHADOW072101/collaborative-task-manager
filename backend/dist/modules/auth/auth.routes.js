@@ -14,6 +14,6 @@ router.post('/login', auth_controller_1.authController.login);
 router.get('/me', auth_middleware_1.authenticate, auth_controller_1.authController.getCurrentUser);
 router.put('/profile', auth_middleware_1.authenticate, auth_controller_1.authController.updateProfile);
 router.post('/logout', auth_middleware_1.authenticate, auth_controller_1.authController.logout);
-router.post('/refresh-token', auth_controller_1.authController.refreshToken); // Optional
+router.post('/refresh-token', auth_controller_1.authController.refreshToken);
 exports.default = router;
 //# sourceMappingURL=auth.routes.js.map

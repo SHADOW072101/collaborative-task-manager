@@ -10,7 +10,7 @@ const notification_controller_1 = require("./modules/notifications/notification.
 const router = (0, express_1.Router)();
 // ========== AUTH ROUTES ==========
 // Remove "/api" prefix since it will be added when mounted
-router.post('/auth/register', auth_controller_1.authController.register); // ✅ Fixed
+router.post('/auth/register', auth_controller_1.authController.register);
 router.post('/auth/login', auth_controller_1.authController.login);
 router.post('/auth/logout', auth_middleware_1.authenticate, auth_controller_1.authController.logout);
 router.post('/auth/refresh-token', auth_controller_1.authController.refreshToken);
