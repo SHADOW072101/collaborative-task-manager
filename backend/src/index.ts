@@ -27,43 +27,30 @@ app.use((req, res, next) => {
 app.use(helmet());
 
 // CORS configuration
-const allowedOrigins = [
-  '*', // Allow all origins - adjust as needed for production
-];
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow server-to-server, Postman, curl
+    if (!origin) return callback(null, true);
 
-app.options('*', (req, res) => {
-  const origin = req.headers.origin || '';
-  
-  if (allowedOrigins.includes(origin) || !origin) {
-    res.header('Access-Control-Allow-Origin', origin || '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Max-Age', '86400'); // 24 hours
-    return res.status(200).end();
-  }
-  
-  res.status(403).json({ error: 'Origin not allowed' });
-});
+    // Allow all Vercel preview deployments
+    if (origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
 
-// Regular CORS middleware
-app.use((req, res, next) => {
-  const origin = req.headers.origin || '';
-  
-  if (allowedOrigins.includes(origin) || !origin) {
-    res.header('Access-Control-Allow-Origin', origin || '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With');
-    res.header('Access-Control-Allow-Credentials', 'true');
-  }
-  
-  // Handle preflight requests
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  
-  next();
-}); // Enable preflight for all routes
+    // Optional: allow custom prod domain later
+    if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) {
+      return callback(null, true);
+    }
+
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+
+app.options('*', cors());// Enable preflight for all routes
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
