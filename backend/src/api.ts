@@ -10,7 +10,7 @@ const router = Router();
 
 // ========== AUTH ROUTES ==========
 // Remove "/api" prefix since it will be added when mounted
-router.post('/auth/register', authController.register);  // ✅ Fixed
+router.post('/auth/register', authController.register);  
 router.post('/auth/login', authController.login);
 router.post('/auth/logout', authenticate, authController.logout);
 router.post('/auth/refresh-token', authController.refreshToken);

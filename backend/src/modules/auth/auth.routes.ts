@@ -13,7 +13,7 @@ router.post('/login', authController.login);
 router.get('/me', authenticate, authController.getCurrentUser);
 router.put('/profile', authenticate, authController.updateProfile);
 router.post('/logout', authenticate, authController.logout);
-router.post('/refresh-token', authController.refreshToken); // Optional
+router.post('/refresh-token', authController.refreshToken);
 
 
 export default router;
