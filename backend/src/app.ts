@@ -16,13 +16,17 @@ import { env } from "./core/config/env";
 
 const app = express();
 
-// /* ---------- Middleware ---------- */
-// app.use(cors({
-//   origin: '*',
-//   credentials: true,
-// }));
-// app.use(helmet());
-// app.use(express.json());
+app.use(cors({
+  origin: [
+    '*',
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+
+app.use(helmet());
+app.use(express.json());
 
 /* ---------- Routes ---------- */
 app.get("/api/health", (_, res) => {
