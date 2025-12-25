@@ -18,7 +18,7 @@ const app = express();
 
 /* ---------- Middleware ---------- */
 app.use(cors({
-  origin: true,
+  origin: '*',
   credentials: true,
 }));
 app.use(helmet());
