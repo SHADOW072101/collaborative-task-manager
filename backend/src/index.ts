@@ -28,11 +28,7 @@ app.use(helmet());
 
 // CORS configuration
 const allowedOrigins = [
-  'https://collaborative-task-manager-81xh.vercel.app',
-  'https://collaborative-task-manager-81xh-d3swt3m6a-ganesh-naiks-projects.vercel.app',
-  'https://collaborative-task-manager-81xh-p5epxvgg9-ganesh-naiks-projects.vercel.app',
-  'http://localhost:5173',
-  'http://localhost:3000'
+  '*', // Allow all origins - adjust as needed for production
 ];
 
 app.use(cors({
